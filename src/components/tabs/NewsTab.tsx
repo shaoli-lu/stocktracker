@@ -78,18 +78,6 @@ export default function NewsTab() {
             className="glass-panel rounded-[2rem] overflow-hidden group cursor-pointer border border-white/5 hover:border-indigo-500/50 transition-all duration-300 hover:shadow-[0_20px_40px_-15px_rgba(99,102,241,0.3)] hover:-translate-y-1 flex flex-col relative"
           >
              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-0"></div>
-             {item.image ? (
-               <div className="w-full h-48 overflow-hidden relative z-10 border-b border-white/10">
-                 <img src={item.image} alt={item.headline} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                 <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent"></div>
-               </div>
-             ) : (
-               <div className="w-full h-48 bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center relative z-10 border-b border-white/10">
-                 <Newspaper className="w-16 h-16 text-gray-700" />
-                 <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent"></div>
-               </div>
-             )}
-             
              <div className="p-6 flex flex-col flex-grow z-10 relative">
                 <div className="flex items-center gap-2 text-xs font-bold text-indigo-400 mb-3 uppercase tracking-wider">
                   <span className="bg-indigo-500/20 px-2 py-1 rounded-md">{item.source}</span>

@@ -152,8 +152,8 @@ export default function Home() {
       </header>
 
       {/* TABS DIVIDER & TABS */}
-      <div className="flex justify-center mb-8">
-        <nav className="flex flex-wrap gap-2 p-1.5 rounded-2xl bg-black/40 border border-white/5 backdrop-blur-xl shrink-0">
+      <div className="flex justify-center mb-8 max-w-full overflow-hidden px-1">
+        <nav className="flex gap-2 p-1.5 rounded-2xl bg-black/40 border border-white/5 backdrop-blur-xl overflow-x-auto no-scrollbar scroll-smooth w-full md:w-auto">
           {TABS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -161,7 +161,7 @@ export default function Home() {
               <button
                 key={tab.id}
                 onClick={(e) => { e.stopPropagation(); setActiveTab(tab.id); }}
-                className={`flex items-center gap-2.5 px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 ${isActive ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/40 transform scale-105' : 'text-gray-400 hover:text-white hover:bg-white/10'}`}
+                className={`flex items-center gap-2.5 px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 shrink-0 whitespace-nowrap ${isActive ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/40 transform scale-100 md:scale-105' : 'text-gray-400 hover:text-white hover:bg-white/10'}`}
               >
                 <Icon className={`w-4 h-4 ${isActive ? 'animate-bounce' : ''}`} />
                 {tab.id}
