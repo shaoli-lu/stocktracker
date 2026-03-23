@@ -112,9 +112,16 @@ export default function ProfileTab() {
                    <div className="text-3xl font-black text-white mb-2 tracking-tighter">
                      ${quote.c?.toFixed(2)}
                    </div>
-                   <div className={`flex items-center gap-2 font-bold text-sm ${isUp ? 'text-green-400' : 'text-red-400'}`}>
-                     <span>{isUp ? "+" : ""}{quote.d?.toFixed(2)}</span>
-                     <span className="opacity-70">({isUp ? "+" : ""}{quote.dp?.toFixed(2)}%)</span>
+                   <div className="flex flex-col gap-1.5">
+                     <div className={`flex items-center gap-2 font-bold text-sm ${isUp ? 'text-green-400' : 'text-red-400'}`}>
+                       <span>{isUp ? "+" : ""}{quote.d?.toFixed(2)}</span>
+                       <span className="opacity-70">({isUp ? "+" : ""}{quote.dp?.toFixed(2)}%)</span>
+                     </div>
+                     {quote.t && (
+                       <div className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">
+                         As of {new Date(quote.t * 1000).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                       </div>
+                     )}
                    </div>
                 </div>
               ) : (

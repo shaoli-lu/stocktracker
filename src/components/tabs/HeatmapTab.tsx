@@ -56,12 +56,22 @@ export default function HeatmapTab() {
     return "col-span-1 row-span-1 text-base p-3";
   };
 
+  const latestTime = Object.values(quotes).reduce((max: number, q: any) => Math.max(max, q?.t || 0), 0) as number;
+
   return (
     <div className="flex-grow flex flex-col p-4 animate-in slide-in-from-bottom-4 duration-500">
-      <div className="flex items-center justify-between mb-8 z-10 glass-panel px-6 py-4 rounded-2xl w-full">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 z-10 glass-panel px-6 py-4 rounded-2xl w-full gap-4">
          <div>
            <h2 className="text-2xl font-black text-white tracking-tight">Market Heatmap</h2>
-           <p className="text-sm font-semibold text-gray-400 mt-1 uppercase tracking-widest">Real-time Performance Weighted</p>
+           <div className="text-sm font-semibold text-gray-400 mt-1 uppercase tracking-widest flex flex-wrap items-center gap-2">
+             <span>Real-time Performance Weighted</span>
+             {latestTime > 0 && (
+               <>
+                 <span className="hidden sm:inline opacity-30">•</span>
+                 <span className="text-indigo-400">As of {new Date(latestTime * 1000).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+               </>
+             )}
+           </div>
          </div>
          {isLoading && Object.keys(quotes).length === 0 && (
            <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>

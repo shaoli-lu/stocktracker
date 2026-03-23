@@ -74,10 +74,17 @@ export default function SlideshowTab() {
                   ${quote.c?.toFixed(2) || "0.00"}
                 </span>
                 
-                <div className={`flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-2.5 rounded-full font-bold text-sm sm:text-xl ${isUp ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}`}>
-                  {isUp ? <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" /> : <TrendingDown className="w-5 h-5 sm:w-6 sm:h-6" />}
-                  <span>{isUp ? "+" : ""}{quote.d?.toFixed(2)}</span>
-                  <span className="opacity-75">({isUp ? "+" : ""}{quote.dp?.toFixed(2)}%)</span>
+                <div className="flex flex-col items-center gap-2">
+                  <div className={`flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-2.5 rounded-full font-bold text-sm sm:text-xl ${isUp ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}`}>
+                    {isUp ? <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" /> : <TrendingDown className="w-5 h-5 sm:w-6 sm:h-6" />}
+                    <span>{isUp ? "+" : ""}{quote.d?.toFixed(2)}</span>
+                    <span className="opacity-75">({isUp ? "+" : ""}{quote.dp?.toFixed(2)}%)</span>
+                  </div>
+                  {quote.t && (
+                    <div className="text-xs sm:text-sm text-gray-500 font-semibold uppercase tracking-wider mt-1 sm:mt-2">
+                      As of {new Date(quote.t * 1000).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
