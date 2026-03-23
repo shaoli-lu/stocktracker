@@ -1,0 +1,119 @@
+import { useState, useEffect } from "react";
+import { getCompanyNews } from "@/lib/api";
+import { useStock } from "@/lib/StockContext";
+import { Newspaper, ExternalLink, Calendar, ChevronDown } from "lucide-react";
+import { SYMBOLS } from "@/lib/data";
+
+export default function NewsTab() {
+  const { selectedSymbol, setSelectedSymbol } = useStock();
+  const [news, setNews] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    async function fetchNews() {
+      setIsLoading(true);
+      const to = new Date().toISOString().split("T")[0];
+      const from = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]; // last 7 days
+      
+      const data = await getCompanyNews(selectedSymbol, from, to);
+      if (mounted) {
+        setNews(data || []);
+        setIsLoading(false);
+      }
+    }
+    fetchNews();
+    return () => { mounted = false; };
+  }, [selectedSymbol]);
+
+  return (
+    <div className="flex-grow flex flex-col p-4 animate-in slide-in-from-bottom-4 duration-500 pb-12 w-full max-w-7xl mx-auto">
+      <div className="flex flex-col md:flex-row items-center justify-between mb-8 z-10 glass-panel px-6 py-5 rounded-3xl gap-4">
+         <div className="flex items-center gap-4 w-full md:w-auto">
+           <div className="w-12 h-12 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg border border-white/20">
+              <Newspaper className="w-6 h-6 text-white" />
+           </div>
+           <div>
+             <h2 className="text-2xl font-black text-white tracking-tight">Financial News</h2>
+             <p className="text-sm font-semibold text-indigo-400 mt-0.5 uppercase tracking-widest leading-none">Market Intelligence</p>
+           </div>
+         </div>
+         
+         <div className="flex items-center gap-4 w-full md:w-auto">
+            <div className="relative w-full md:w-48">
+              <select
+                value={selectedSymbol}
+                onChange={(e) => setSelectedSymbol(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+                className="w-full appearance-none bg-black/60 border border-gray-700 focus:border-indigo-500 text-white pl-5 pr-12 py-3 rounded-2xl font-bold cursor-pointer outline-none transition-all shadow-inner hover:bg-black/80"
+              >
+              {(!SYMBOLS.includes(selectedSymbol) ? [selectedSymbol, ...SYMBOLS] : SYMBOLS).map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+              </select>
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+            </div>
+            
+           {isLoading && (
+             <div className="w-10 h-10 shrink-0 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+           )}
+         </div>
+      </div>
+
+      {!isLoading && news.length === 0 && (
+        <div className="glass-panel py-20 rounded-[2rem] flex flex-col items-center justify-center border border-white/5 text-gray-400 text-center font-semibold">
+           <Newspaper className="w-16 h-16 opacity-20 mb-4" />
+           <p className="text-xl">No major news for {selectedSymbol} in the past 7 days.</p>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 z-10 w-full mb-12">
+        {news.slice(0, 15).map((item, idx) => (
+          <a
+            key={item.id || idx}
+            href={item.url}
+            target="_blank"
+            rel="noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="glass-panel rounded-[2rem] overflow-hidden group cursor-pointer border border-white/5 hover:border-indigo-500/50 transition-all duration-300 hover:shadow-[0_20px_40px_-15px_rgba(99,102,241,0.3)] hover:-translate-y-1 flex flex-col relative"
+          >
+             <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-0"></div>
+             {item.image ? (
+               <div className="w-full h-48 overflow-hidden relative z-10 border-b border-white/10">
+                 <img src={item.image} alt={item.headline} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                 <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent"></div>
+               </div>
+             ) : (
+               <div className="w-full h-48 bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center relative z-10 border-b border-white/10">
+                 <Newspaper className="w-16 h-16 text-gray-700" />
+                 <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent"></div>
+               </div>
+             )}
+             
+             <div className="p-6 flex flex-col flex-grow z-10 relative">
+                <div className="flex items-center gap-2 text-xs font-bold text-indigo-400 mb-3 uppercase tracking-wider">
+                  <span className="bg-indigo-500/20 px-2 py-1 rounded-md">{item.source}</span>
+                  <span className="flex items-center gap-1 opacity-70 ml-auto">
+                    <Calendar className="w-3.5 h-3.5" />
+                    {new Date(item.datetime * 1000).toLocaleDateString()}
+                  </span>
+                </div>
+                
+                <h3 className="text-xl font-bold text-white leading-snug mb-3 group-hover:text-indigo-300 transition-colors line-clamp-3">
+                  {item.headline}
+                </h3>
+                
+                <p className="text-gray-400 text-sm font-medium line-clamp-2 mb-6 flex-grow">
+                  {item.summary}
+                </p>
+                
+                <div className="mt-auto flex items-center text-sm font-bold text-indigo-400 gap-1.5 group-hover:gap-2.5 transition-all">
+                  Read Full Article <ExternalLink className="w-4 h-4" />
+                </div>
+             </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
