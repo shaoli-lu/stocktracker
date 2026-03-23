@@ -5,26 +5,45 @@ import { Newspaper, ExternalLink, Calendar, ChevronDown } from "lucide-react";
 import { SYMBOLS } from "@/lib/data";
 
 export default function NewsTab() {
-  const { selectedSymbol, setSelectedSymbol } = useStock();
+  const { selectedSymbol } = useStock();
+  const [newsScope, setNewsScope] = useState("ALL");
+  const [prevScopeSymbol, setPrevScopeSymbol] = useState(selectedSymbol);
+  
   const [news, setNews] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Sync with global header if user makes a global search
+  if (selectedSymbol !== prevScopeSymbol) {
+    setNewsScope(selectedSymbol);
+    setPrevScopeSymbol(selectedSymbol);
+  }
 
   useEffect(() => {
     let mounted = true;
     async function fetchNews() {
       setIsLoading(true);
-      const to = new Date().toISOString().split("T")[0];
-      const from = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]; // last 7 days
+      let data = [];
       
-      const data = await getCompanyNews(selectedSymbol, from, to);
+      if (newsScope === "ALL") {
+        const { getMarketNews } = await import("@/lib/api");
+        data = (await getMarketNews()) || [];
+      } else {
+        const { getCompanyNews } = await import("@/lib/api");
+        const to = new Date().toISOString().split("T")[0];
+        const from = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]; // last 7 days
+        data = (await getCompanyNews(newsScope, from, to)) || [];
+      }
+      
       if (mounted) {
-        setNews(data || []);
+        // Explicitly enforce desc chronological sorting 
+        const sortedData = data.sort((a: any, b: any) => b.datetime - a.datetime);
+        setNews(sortedData);
         setIsLoading(false);
       }
     }
     fetchNews();
     return () => { mounted = false; };
-  }, [selectedSymbol]);
+  }, [newsScope]);
 
   return (
     <div className="flex-grow flex flex-col p-4 animate-in slide-in-from-bottom-4 duration-500 pb-12 w-full max-w-7xl mx-auto">
@@ -42,12 +61,13 @@ export default function NewsTab() {
          <div className="flex items-center gap-4 w-full md:w-auto">
             <div className="relative w-full md:w-48">
               <select
-                value={selectedSymbol}
-                onChange={(e) => setSelectedSymbol(e.target.value)}
+                value={newsScope}
+                onChange={(e) => setNewsScope(e.target.value)}
                 onClick={(e) => e.stopPropagation()}
                 className="w-full appearance-none bg-black/60 border border-gray-700 focus:border-indigo-500 text-white pl-5 pr-12 py-3 rounded-2xl font-bold cursor-pointer outline-none transition-all shadow-inner hover:bg-black/80"
               >
-              {(!SYMBOLS.includes(selectedSymbol) ? [selectedSymbol, ...SYMBOLS] : SYMBOLS).map((s) => (
+              <option value="ALL">All Market</option>
+              {(!SYMBOLS.includes(newsScope) && newsScope !== "ALL" ? [newsScope, ...SYMBOLS] : SYMBOLS).map((s) => (
                 <option key={s} value={s}>{s}</option>
               ))}
               </select>
@@ -63,7 +83,7 @@ export default function NewsTab() {
       {!isLoading && news.length === 0 && (
         <div className="glass-panel py-20 rounded-[2rem] flex flex-col items-center justify-center border border-white/5 text-gray-400 text-center font-semibold">
            <Newspaper className="w-16 h-16 opacity-20 mb-4" />
-           <p className="text-xl">No major news for {selectedSymbol} in the past 7 days.</p>
+           <p className="text-xl">No major news for {newsScope} in the past 7 days.</p>
         </div>
       )}
 
@@ -79,11 +99,11 @@ export default function NewsTab() {
           >
              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-0"></div>
              <div className="p-6 flex flex-col flex-grow z-10 relative">
-                <div className="flex items-center gap-2 text-xs font-bold text-indigo-400 mb-3 uppercase tracking-wider">
-                  <span className="bg-indigo-500/20 px-2 py-1 rounded-md">{item.source}</span>
-                  <span className="flex items-center gap-1 opacity-70 ml-auto">
+                <div className="flex items-center justify-between text-xs font-bold text-indigo-400 mb-4 tracking-wider">
+                  <span className="bg-indigo-500/20 px-2.5 py-1.5 rounded-md uppercase">{item.source}</span>
+                  <span className="flex items-center gap-1.5 opacity-80 bg-black/40 px-2.5 py-1.5 rounded-md">
                     <Calendar className="w-3.5 h-3.5" />
-                    {new Date(item.datetime * 1000).toLocaleDateString()}
+                    {new Date(item.datetime * 1000).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
                 

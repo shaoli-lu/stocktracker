@@ -111,6 +111,12 @@ export async function getCandles(symbol: string, resolution: string, from: numbe
   return simulatedData;
 }
 
+export async function getMarketNews() {
+  const url = `${API_BASE_URL}/news?category=general&token=${API_KEY}`;
+  const key = `news_market_general`;
+  return fetchWithFallback<any[]>(url, key);
+}
+
 export async function getCompanyNews(symbol: string, from: string, to: string) {
   const url = `${API_BASE_URL}/company-news?symbol=${symbol}&from=${from}&to=${to}&token=${API_KEY}`;
   const key = `news_${symbol}`;
