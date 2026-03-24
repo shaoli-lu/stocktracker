@@ -20,8 +20,11 @@ export default function NewsTab() {
 
   useEffect(() => {
     let mounted = true;
-    async function fetchNews() {
-      setIsLoading(true);
+    let interval: NodeJS.Timeout;
+
+    async function fetchNews(isInitial: boolean = false) {
+      if (isInitial) setIsLoading(true);
+      
       let data = [];
       
       if (newsScope === "ALL") {
@@ -41,8 +44,17 @@ export default function NewsTab() {
         setIsLoading(false);
       }
     }
-    fetchNews();
-    return () => { mounted = false; };
+
+    fetchNews(true);
+
+    interval = setInterval(() => {
+      fetchNews(false);
+    }, 60000); // Polling every 60s
+
+    return () => { 
+      mounted = false; 
+      clearInterval(interval);
+    };
   }, [newsScope]);
 
   return (

@@ -10,16 +10,19 @@ export default function HeatmapTab() {
 
   useEffect(() => {
     let mounted = true;
-    async function fetchAll() {
-      setIsLoading(true);
-      const qs: Record<string, any> = {};
+    let interval: NodeJS.Timeout;
+
+    async function fetchAll(isInitial: boolean = false) {
+      if (isInitial) setIsLoading(true);
       
+      const qs: Record<string, any> = {};
       const batches = [];
       for (let i = 0; i < SYMBOLS.length; i += 5) {
         batches.push(SYMBOLS.slice(i, i + 5));
       }
 
       for (const batch of batches) {
+        if (!mounted) break;
         await Promise.all(
           batch.map(async (sym) => {
             const q = await getQuote(sym);
@@ -34,8 +37,16 @@ export default function HeatmapTab() {
       }
     }
 
-    fetchAll();
-    return () => { mounted = false; };
+    fetchAll(true);
+
+    interval = setInterval(() => {
+      fetchAll(false);
+    }, 60000); // Polling every 60s
+
+    return () => { 
+      mounted = false; 
+      clearInterval(interval);
+    };
   }, []);
 
   const getHeatmapColor = (dp: number) => {

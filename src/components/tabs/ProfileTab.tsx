@@ -12,14 +12,17 @@ export default function ProfileTab() {
 
   useEffect(() => {
     let mounted = true;
-    
-    async function fetchAll() {
-      setIsLoading(true);
+    let interval: NodeJS.Timeout;
+
+    async function fetchAll(isInitial: boolean = false) {
+      if (isInitial) setIsLoading(true);
+      
       const profs: Record<string, any> = {};
       const qs: Record<string, any> = {};
 
       // Fetch in batches of 5 to avoid hammering the Finnhub API rate limits too hard simultaneously
       for (let i = 0; i < SYMBOLS.length; i += 5) {
+        if (!mounted) break;
         const batch = SYMBOLS.slice(i, i + 5);
         await Promise.all(
           batch.map(async (sym) => {
@@ -37,8 +40,16 @@ export default function ProfileTab() {
       }
     }
 
-    fetchAll();
-    return () => { mounted = false; };
+    fetchAll(true);
+
+    interval = setInterval(() => {
+      fetchAll(false);
+    }, 60000); // Polling every 60s
+
+    return () => { 
+      mounted = false; 
+      clearInterval(interval);
+    };
   }, []);
 
   return (
