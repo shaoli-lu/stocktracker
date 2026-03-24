@@ -41,7 +41,7 @@ export default function HeatmapTab() {
 
     interval = setInterval(() => {
       fetchAll(false);
-    }, 60000); // Polling every 60s
+    }, 5000); // Polling every 5s
 
     return () => { 
       mounted = false; 
