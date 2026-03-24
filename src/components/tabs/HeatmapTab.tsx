@@ -91,17 +91,27 @@ export default function HeatmapTab() {
                  setSelectedSymbol(sym);
                  setActiveTab("Candle");
               }}
-              className={`${getHeatmapColor(dp)} ${getCellSize(dp)} rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:scale-105 border border-white/10 group overflow-hidden relative`}
+              className={`${getHeatmapColor(dp)} ${getCellSize(dp)} rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:scale-105 border border-white/10 group overflow-hidden relative text-center`}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
               
-              <span className="font-extrabold text-white tracking-tight z-10">{sym}</span>
+              <span className="font-extrabold text-white tracking-tight z-10 leading-tight">{sym}</span>
               {quote && dp !== undefined ? (
-                <span className="font-bold text-white/90 z-10">
-                  {dp > 0 ? "+" : ""}{dp.toFixed(2)}%
-                </span>
+                <div className="flex flex-col items-center z-10">
+                  <span className="font-bold text-white/90">
+                    {dp > 0 ? "+" : ""}{dp.toFixed(2)}%
+                  </span>
+                  <div className="flex flex-col items-center mt-1 scale-90 origin-top opacity-80">
+                    <span className="text-white font-medium text-xs sm:text-sm">
+                      ${quote.c?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                    <span className="text-white/70 text-[10px] sm:text-xs">
+                      {quote.d >= 0 ? "+" : "-"}${Math.abs(quote.d).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
               ) : (
-                <span className="w-10 h-4 bg-white/20 rounded animate-pulse mt-1 z-10"></span>
+                <span className="w-10 h-10 bg-white/20 rounded animate-pulse mt-1 z-10"></span>
               )}
             </div>
           )
