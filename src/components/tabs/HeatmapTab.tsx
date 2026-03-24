@@ -14,7 +14,7 @@ export default function HeatmapTab() {
 
     async function fetchAll(isInitial: boolean = false) {
       if (isInitial) setIsLoading(true);
-      
+
       const qs: Record<string, any> = {};
       const batches = [];
       for (let i = 0; i < SYMBOLS.length; i += 5) {
@@ -30,7 +30,7 @@ export default function HeatmapTab() {
           })
         );
       }
-      
+
       if (mounted) {
         setQuotes(qs);
         setIsLoading(false);
@@ -43,8 +43,8 @@ export default function HeatmapTab() {
       fetchAll(false);
     }, 5000); // Polling every 5s
 
-    return () => { 
-      mounted = false; 
+    return () => {
+      mounted = false;
       clearInterval(interval);
     };
   }, []);
@@ -72,40 +72,40 @@ export default function HeatmapTab() {
   return (
     <div className="flex-grow flex flex-col p-4 animate-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 z-10 glass-panel px-6 py-4 rounded-2xl w-full gap-4">
-         <div>
-           <h2 className="text-2xl font-black text-white tracking-tight">Market Heatmap</h2>
-           <div className="text-sm font-semibold text-gray-400 mt-1 uppercase tracking-widest flex flex-wrap items-center gap-2">
-             <span>Real-time Performance Weighted</span>
-             {latestTime > 0 && (
-               <>
-                 <span className="hidden sm:inline opacity-30">•</span>
-                 <span className="text-indigo-400">As of {new Date(latestTime * 1000).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
-               </>
-             )}
-           </div>
-         </div>
-         {isLoading && Object.keys(quotes).length === 0 && (
-           <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-         )}
+        <div>
+          <h2 className="text-2xl font-black text-white tracking-tight">Market Heatmap</h2>
+          <div className="text-sm font-semibold text-gray-400 mt-1 uppercase tracking-widest flex flex-wrap items-center gap-2">
+            <span>Real-time Performance Weighted</span>
+            {latestTime > 0 && (
+              <>
+                <span className="hidden sm:inline opacity-30">•</span>
+                <span className="text-indigo-400">As of {new Date(latestTime * 1000).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+              </>
+            )}
+          </div>
+        </div>
+        {isLoading && Object.keys(quotes).length === 0 && (
+          <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+        )}
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 auto-rows-[100px] z-10 pb-12 w-full">
         {SYMBOLS.map((sym) => {
           const quote = quotes[sym];
           const dp = quote?.dp;
-          
+
           return (
             <div
               key={sym}
               onClick={(e) => {
-                 e.stopPropagation();
-                 setSelectedSymbol(sym);
-                 setActiveTab("Candle");
+                e.stopPropagation();
+                setSelectedSymbol(sym);
+                setActiveTab("Candle");
               }}
               className={`${getHeatmapColor(dp)} ${getCellSize(dp)} rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:scale-105 border border-white/10 group overflow-hidden relative text-center`}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              
+
               <span className="font-extrabold text-white tracking-tight z-10 leading-tight">{sym}</span>
               {quote && dp !== undefined ? (
                 <div className="flex flex-col items-center z-10">
@@ -113,10 +113,10 @@ export default function HeatmapTab() {
                     {dp > 0 ? "+" : ""}{dp.toFixed(2)}%
                   </span>
                   <div className="flex flex-col items-center mt-1 scale-90 origin-top opacity-80">
-                    <span className="text-white font-medium text-xs sm:text-sm">
+                    <span className="font-bold text-white-600 font-medium text-xs sm:text-sm">
                       ${quote.c?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
-                    <span className="text-white/70 text-[10px] sm:text-xs">
+                    <span className="font-bold text-white-600 text-[10px] sm:text-xs">
                       {quote.d >= 0 ? "+" : "-"}${Math.abs(quote.d).toFixed(2)}
                     </span>
                   </div>
