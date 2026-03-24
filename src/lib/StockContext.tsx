@@ -14,7 +14,7 @@ const StockContext = createContext<StockContextType | undefined>(undefined);
 
 export function StockProvider({ children }: { children: ReactNode }) {
   const [selectedSymbol, setSelectedSymbol] = useState("AMZN");
-  const [activeTab, setActiveTab] = useState("Slideshow"); // default tab
+  const [activeTab, setActiveTab] = useState("Heatmap"); // default tab
 
   return (
     <StockContext.Provider value={{ selectedSymbol, setSelectedSymbol, activeTab, setActiveTab }}>

@@ -14,11 +14,11 @@ import HeatmapTab from "@/components/tabs/HeatmapTab";
 import NewsTab from "@/components/tabs/NewsTab";
 
 const TABS = [
-  { id: "Slideshow", icon: MonitorPlay },
-  { id: "Profile", icon: User },
-  { id: "Candle", icon: BarChart2 },
   { id: "Heatmap", icon: Grid },
   { id: "News", icon: FileText },
+  { id: "Candle", icon: BarChart2 },
+  { id: "Slideshow", icon: MonitorPlay },
+  { id: "Profile", icon: User },
 ];
 
 export default function Home() {
@@ -173,11 +173,11 @@ export default function Home() {
 
       {/* CONTENT ENGINE */}
       <section className="flex-grow flex flex-col relative w-full h-full min-h-[500px]">
-        {activeTab === "Slideshow" && <SlideshowTab />}
-        {activeTab === "Profile" && <ProfileTab />}
-        {activeTab === "Candle" && <CandleTab />}
         {activeTab === "Heatmap" && <HeatmapTab />}
         {activeTab === "News" && <NewsTab />}
+        {activeTab === "Candle" && <CandleTab />}
+        {activeTab === "Slideshow" && <SlideshowTab />}
+        {activeTab === "Profile" && <ProfileTab />}
       </section>
     </main>
   );
