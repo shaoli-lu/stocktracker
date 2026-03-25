@@ -6,9 +6,9 @@ import Providers from "@/components/Providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "FinMatrix | Next Gen Stock Tracker",
+  title: "MarketHeat | Stock Market Pulse",
   description: "Real-time stock tracking with a sleek, modern interface.",
-  appleWebApp: { title: "FinMatrix" },
+  appleWebApp: { title: "MarketHeat" },
 };
 
 export default function RootLayout({

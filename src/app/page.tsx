@@ -24,7 +24,7 @@ const TABS = [
 export default function Home() {
   const { setSelectedSymbol, activeTab, setActiveTab } = useStock();
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<{symbol: string, description: string}[]>([]);
+  const [searchResults, setSearchResults] = useState<{ symbol: string, description: string }[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
@@ -37,7 +37,7 @@ export default function Home() {
     }
 
     const abortController = new AbortController();
-    
+
     const debounceTimeout = setTimeout(async () => {
       setIsSearching(true);
       try {
@@ -50,7 +50,7 @@ export default function Home() {
           .map((r: any) => ({
             symbol: r.symbol,
             description: r.description
-        }));
+          }));
         setSearchResults(formatted);
       } catch (error) {
         console.error(error);
@@ -79,7 +79,7 @@ export default function Home() {
     setSelectedSymbol(sym);
     setSearchQuery("");
     setIsSearchOpen(false);
-    if(activeTab !== "Candle" && activeTab !== "Profile" && activeTab !== "News") {
+    if (activeTab !== "Candle" && activeTab !== "Profile" && activeTab !== "News") {
       setActiveTab("Candle");
     }
   };
@@ -90,11 +90,11 @@ export default function Home() {
       <header className="flex flex-col md:flex-row justify-between items-center mb-8 gap-6 z-50">
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-500 to-fuchsia-600 flex items-center justify-center shadow-[0_0_30px_rgba(99,102,241,0.6)] animate-pulse">
-            <Activity className="text-white w-8 h-8" strokeWidth={2.5}/>
+            <Activity className="text-white w-8 h-8" strokeWidth={2.5} />
           </div>
           <div>
             <h1 className="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-white via-indigo-200 to-indigo-500">
-              FinMatrix
+              MarketHeat
             </h1>
             <p className="text-sm text-indigo-400 font-bold tracking-widest uppercase">Wealth Engine</p>
           </div>
@@ -106,7 +106,7 @@ export default function Home() {
             <Search className="absolute left-4 text-gray-400 w-5 h-5 pointer-events-none" />
             <input
               type="text"
-              placeholder="Search global markets (e.g. Apple, TSLA)..."
+              placeholder="Search global stocks (e.g. Apple, TSLA)..."
               className="w-full bg-black/40 backdrop-blur-md border border-gray-700/50 focus:border-indigo-500 rounded-full py-3.5 pl-12 pr-12 text-base font-medium text-white placeholder-gray-400 outline-none transition-all shadow-inner hover:bg-black/60 focus:bg-black/80"
               value={searchQuery}
               onChange={(e) => {
@@ -120,14 +120,14 @@ export default function Home() {
               <Loader2 className="absolute right-4 text-indigo-400 w-5 h-5 animate-spin pointer-events-none" />
             )}
           </div>
-          
+
           {isSearchOpen && searchQuery && (
             <div className="absolute top-full mt-3 w-full bg-gray-900/90 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden shadow-2xl z-50 max-h-[22rem] overflow-y-auto">
               {searchResults.length > 0 ? (
                 <ul className="py-2">
                   {searchResults.map(item => (
-                    <li 
-                      key={item.symbol} 
+                    <li
+                      key={item.symbol}
                       className="px-5 py-3 hover:bg-indigo-500/20 cursor-pointer transition-colors flex flex-col gap-0.5 border-b border-white/5 last:border-0"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -143,7 +143,7 @@ export default function Home() {
                 </ul>
               ) : (
                 <div className="p-6 text-sm font-medium text-gray-400 text-center flex flex-col items-center">
-                   {!isSearching ? `No markets found matching "${searchQuery}"` : "Searching global data..."}
+                  {!isSearching ? `No markets found matching "${searchQuery}"` : "Searching global data..."}
                 </div>
               )}
             </div>

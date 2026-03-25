@@ -73,7 +73,7 @@ export default function HeatmapTab() {
     <div className="flex-grow flex flex-col p-4 animate-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 z-10 glass-panel px-6 py-4 rounded-2xl w-full gap-4">
         <div>
-          <h2 className="text-2xl font-black text-white tracking-tight">Market Heatmap</h2>
+          <h2 className="text-2xl font-black text-white tracking-tight">Heat Map</h2>
           <div className="text-sm font-semibold text-gray-400 mt-1 uppercase tracking-widest flex flex-wrap items-center gap-2">
             <span>Real-time Performance Weighted</span>
             {latestTime > 0 && (
