@@ -106,7 +106,7 @@ export default function Home() {
             <Search className="absolute left-4 text-gray-400 w-5 h-5 pointer-events-none" />
             <input
               type="text"
-              placeholder="Search global stocks (e.g. Apple, TSLA)..."
+              placeholder="Search (limited)..."
               className="w-full bg-black/40 backdrop-blur-md border border-gray-700/50 focus:border-indigo-500 rounded-full py-3.5 pl-12 pr-12 text-base font-medium text-white placeholder-gray-400 outline-none transition-all shadow-inner hover:bg-black/60 focus:bg-black/80"
               value={searchQuery}
               onChange={(e) => {
