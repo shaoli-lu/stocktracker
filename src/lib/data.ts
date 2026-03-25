@@ -1,6 +1,6 @@
 export const SYMBOLS = [
   "NVDA", "TSM", "AVGO", "AMD", "INTC", "AMZN", "MSFT", "GOOGL", "AAPL",
-  "BKNG", "SAP", "QCOM", "CSCO", "NOW", "PLTR", "FIG", "TSLA", "META"
+  "BKNG", "SAP", "QCOM", "CSCO", "NOW", "PLTR", "FIG", "TSLA", "META", "COST", "ORCL", "DELL", "CRM", "UBER", "WDAY", "GILD"
 
 ];
 
