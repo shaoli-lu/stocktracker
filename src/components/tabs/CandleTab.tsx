@@ -30,7 +30,7 @@ export default function CandleTab() {
   useEffect(() => {
     setIsLoading(true);
     if (!containerRef.current) return;
-    
+
     // Clear previous widget injection
     containerRef.current.innerHTML = "";
 
@@ -39,11 +39,12 @@ export default function CandleTab() {
     script.async = true;
     script.onload = () => {
       if (typeof window !== "undefined" && window.TradingView) {
+        const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         new window.TradingView.widget({
           autosize: true,
           symbol: selectedSymbol, // TradingView smartly auto-resolves plain symbols across all exchanges
           interval: resolution,
-          timezone: "Etc/UTC",
+          timezone: userTimezone,
           theme: "dark",
           style: "1",
           locale: "en",
@@ -59,7 +60,7 @@ export default function CandleTab() {
         setIsLoading(false);
       }
     };
-    
+
     document.body.appendChild(script);
 
     return () => {
