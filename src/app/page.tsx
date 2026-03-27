@@ -1,7 +1,7 @@
 "use client";
 
 import { useStock } from "@/lib/StockContext";
-import { Search, Activity, ChevronDown, MonitorPlay, User, BarChart2, Grid, FileText, Loader2 } from "lucide-react";
+import { Search, Activity, MonitorPlay, User, BarChart2, Grid, FileText, Loader2 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { SYMBOLS } from "@/lib/data";
 import { searchStocks } from "@/lib/api";
@@ -24,11 +24,39 @@ const TABS = [
 export default function Home() {
   const { setSelectedSymbol, activeTab, setActiveTab } = useStock();
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<{ symbol: string, description: string }[]>([]);
+  const [searchResults, setSearchResults] = useState<{ symbol: string; description: string }[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const searchRef = useRef<HTMLDivElement>(null);
 
+  const searchRef = useRef<HTMLDivElement>(null);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Shared fetch function (used by debounce + Enter)
+  const fetchResults = async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const results = await searchStocks(query);
+      const formatted = results
+        .filter((r: any) => !r.symbol.includes(".") && r.type !== "")
+        .slice(0, 10)
+        .map((r: any) => ({
+          symbol: r.symbol,
+          description: r.description,
+        }));
+      setSearchResults(formatted);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Debounced preview when typing
   useEffect(() => {
     if (!searchQuery.trim()) {
       setSearchResults([]);
@@ -36,35 +64,22 @@ export default function Home() {
       return;
     }
 
-    const abortController = new AbortController();
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
 
-    const debounceTimeout = setTimeout(async () => {
-      setIsSearching(true);
-      try {
-        const results = await searchStocks(searchQuery);
-        // Finnhub results: { description, displaySymbol, symbol, type }
-        // Filter out non-stocks or map directly
-        const formatted = results
-          .filter((r: any) => !r.symbol.includes('.') && r.type !== '') // Basic sanity check to avoid weird tickers if desired
-          .slice(0, 10)
-          .map((r: any) => ({
-            symbol: r.symbol,
-            description: r.description
-          }));
-        setSearchResults(formatted);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setIsSearching(false);
-      }
-    }, 400);
+    debounceRef.current = setTimeout(() => {
+      fetchResults(searchQuery);
+    }, 600); // debounce delay (ms)
 
     return () => {
-      clearTimeout(debounceTimeout);
-      abortController.abort();
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
     };
   }, [searchQuery]);
 
+  // Close search dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
@@ -84,6 +99,16 @@ export default function Home() {
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+      fetchResults(searchQuery); // immediate search on Enter
+    }
+  };
+
   return (
     <main className="min-h-screen flex flex-col pt-6 px-4 md:px-8 pb-12 w-full mx-auto relative z-10 transition-colors bg-[#0a0f18]/80 max-w-7xl shadow-2xl overflow-hidden glass-panel my-8 rounded-3xl border border-white/5">
       {/* HEADER */}
@@ -96,7 +121,9 @@ export default function Home() {
             <h1 className="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-white via-indigo-200 to-indigo-500">
               MarketHeat
             </h1>
-            <p className="text-sm text-indigo-400 font-bold tracking-widest uppercase">Wealth Engine</p>
+            <p className="text-sm text-indigo-400 font-bold tracking-widest uppercase">
+              Wealth Engine
+            </p>
           </div>
         </div>
 
@@ -106,7 +133,7 @@ export default function Home() {
             <Search className="absolute left-4 text-gray-400 w-5 h-5 pointer-events-none" />
             <input
               type="text"
-              placeholder="Search (limited)..."
+              placeholder="Search by Symbol..."
               className="w-full bg-black/40 backdrop-blur-md border border-gray-700/50 focus:border-indigo-500 rounded-full py-3.5 pl-12 pr-12 text-base font-medium text-white placeholder-gray-400 outline-none transition-all shadow-inner hover:bg-black/60 focus:bg-black/80"
               value={searchQuery}
               onChange={(e) => {
@@ -115,6 +142,7 @@ export default function Home() {
               }}
               onFocus={() => setIsSearchOpen(true)}
               onClick={(e) => e.stopPropagation()}
+              onKeyDown={handleKeyDown}
             />
             {isSearching && (
               <Loader2 className="absolute right-4 text-indigo-400 w-5 h-5 animate-spin pointer-events-none" />
@@ -125,7 +153,7 @@ export default function Home() {
             <div className="absolute top-full mt-3 w-full bg-gray-900/90 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden shadow-2xl z-50 max-h-[22rem] overflow-y-auto">
               {searchResults.length > 0 ? (
                 <ul className="py-2">
-                  {searchResults.map(item => (
+                  {searchResults.map((item) => (
                     <li
                       key={item.symbol}
                       className="px-5 py-3 hover:bg-indigo-500/20 cursor-pointer transition-colors flex flex-col gap-0.5 border-b border-white/5 last:border-0"
@@ -135,15 +163,21 @@ export default function Home() {
                       }}
                     >
                       <div className="flex items-center gap-3">
-                        <span className="text-sm font-bold text-white tracking-wider">{item.symbol}</span>
+                        <span className="text-sm font-bold text-white tracking-wider">
+                          {item.symbol}
+                        </span>
                       </div>
-                      <span className="text-xs font-semibold text-gray-400 truncate w-full">{item.description}</span>
+                      <span className="text-xs font-semibold text-gray-400 truncate w-full">
+                        {item.description}
+                      </span>
                     </li>
                   ))}
                 </ul>
               ) : (
                 <div className="p-6 text-sm font-medium text-gray-400 text-center flex flex-col items-center">
-                  {!isSearching ? `No markets found matching "${searchQuery}"` : "Searching global data..."}
+                  {!isSearching
+                    ? `No markets found matching "${searchQuery}"`
+                    : "Searching global data..."}
                 </div>
               )}
             </div>
@@ -160,13 +194,19 @@ export default function Home() {
             return (
               <button
                 key={tab.id}
-                onClick={(e) => { e.stopPropagation(); setActiveTab(tab.id); }}
-                className={`flex items-center gap-2.5 px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 shrink-0 whitespace-nowrap ${isActive ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/40 transform scale-100 md:scale-105' : 'text-gray-400 hover:text-white hover:bg-white/10'}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveTab(tab.id);
+                }}
+                className={`flex items-center gap-2.5 px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 shrink-0 whitespace-nowrap ${isActive
+                  ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/40 transform scale-100 md:scale-105"
+                  : "text-gray-400 hover:text-white hover:bg-white/10"
+                  }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'animate-bounce' : ''}`} />
+                <Icon className={`w-4 h-4 ${isActive ? "animate-bounce" : ""}`} />
                 {tab.id}
               </button>
-            )
+            );
           })}
         </nav>
       </div>
