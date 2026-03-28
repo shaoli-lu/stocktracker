@@ -4,7 +4,7 @@ import { SYMBOLS } from "@/lib/data";
 import { useStock } from "@/lib/StockContext";
 import { ChevronRight, DollarSign, Building, Globe, Phone, ExternalLink } from "lucide-react";
 
-export default function ProfileTab() {
+export default function LeadersTab() {
   const [profiles, setProfiles] = useState<Record<string, any>>({});
   const [quotes, setQuotes] = useState<Record<string, any>>({});
   const { setSelectedSymbol, setActiveTab } = useStock();

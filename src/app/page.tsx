@@ -8,13 +8,13 @@ import { searchStocks } from "@/lib/api";
 
 // Import tabs
 import SlideshowTab from "@/components/tabs/SlideshowTab";
-import ProfileTab from "@/components/tabs/ProfileTab";
+import LeadersTab from "@/components/tabs/LeadersTab";
 import CandleTab from "@/components/tabs/CandleTab";
 import HeatmapTab from "@/components/tabs/HeatmapTab";
 import NewsTab from "@/components/tabs/NewsTab";
 
 const TABS = [
-  { id: "Profile", icon: User },
+  { id: "Leaders", icon: User },
   { id: "News", icon: FileText },
   { id: "Candle", icon: BarChart2 },
   { id: "Slideshow", icon: MonitorPlay },
@@ -213,7 +213,7 @@ export default function Home() {
 
       {/* CONTENT ENGINE */}
       <section className="flex-grow flex flex-col relative w-full h-full min-h-[500px]">
-        {activeTab === "Profile" && <ProfileTab />}
+        {activeTab === "Leaders" && <LeadersTab />}
         {activeTab === "News" && <NewsTab />}
         {activeTab === "Candle" && <CandleTab />}
         {activeTab === "Slideshow" && <SlideshowTab />}
