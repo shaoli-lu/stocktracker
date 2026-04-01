@@ -1,7 +1,7 @@
 "use client";
 
 import { useStock } from "@/lib/StockContext";
-import { Search, Activity, MonitorPlay, User, BarChart2, Grid, FileText, Loader2 } from "lucide-react";
+import { Search, Activity, MonitorPlay, User, BarChart2, Grid, FileText, Loader2, Calendar as CalendarIcon } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { SYMBOLS } from "@/lib/data";
 import { searchStocks } from "@/lib/api";
@@ -12,10 +12,12 @@ import LeadersTab from "@/components/tabs/LeadersTab";
 import CandleTab from "@/components/tabs/CandleTab";
 import HeatmapTab from "@/components/tabs/HeatmapTab";
 import NewsTab from "@/components/tabs/NewsTab";
+import EarningsTab from "@/components/tabs/EarningsTab";
 
 const TABS = [
   { id: "Leaders", icon: User },
   { id: "News", icon: FileText },
+  { id: "Earnings", icon: CalendarIcon },
   { id: "Candle", icon: BarChart2 },
   { id: "Slideshow", icon: MonitorPlay },
   { id: "Heatmap", icon: Grid },
@@ -215,6 +217,7 @@ export default function Home() {
       <section className="flex-grow flex flex-col relative w-full h-full min-h-[500px]">
         {activeTab === "Leaders" && <LeadersTab />}
         {activeTab === "News" && <NewsTab />}
+        {activeTab === "Earnings" && <EarningsTab />}
         {activeTab === "Candle" && <CandleTab />}
         {activeTab === "Slideshow" && <SlideshowTab />}
         {activeTab === "Heatmap" && <HeatmapTab />}
