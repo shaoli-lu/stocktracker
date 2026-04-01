@@ -130,3 +130,10 @@ export async function searchStocks(query: string) {
   const data = await fetchWithFallback<any>(url, key);
   return data?.result || [];
 }
+
+export async function getEarnings(from: string, to: string, symbol?: string) {
+  let url = `${API_BASE_URL}/calendar/earnings?from=${from}&to=${to}&token=${API_KEY}`;
+  if (symbol) url += `&symbol=${symbol}`;
+  const key = `earnings_${symbol || "all"}_${from}_${to}`;
+  return fetchWithFallback<any>(url, key);
+}

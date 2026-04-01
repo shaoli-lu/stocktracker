@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
-import { getProfile, getQuote } from "@/lib/api";
+import { getProfile, getQuote, getEarnings } from "@/lib/api";
 import { SYMBOLS } from "@/lib/data";
 import { useStock } from "@/lib/StockContext";
-import { ChevronRight, DollarSign, Building, Globe, Phone, ExternalLink } from "lucide-react";
+import { ChevronRight, DollarSign, Building, Globe, Phone, ExternalLink, Calendar } from "lucide-react";
 
 export default function LeadersTab() {
   const [profiles, setProfiles] = useState<Record<string, any>>({});
   const [quotes, setQuotes] = useState<Record<string, any>>({});
+  const [earnings, setEarnings] = useState<Record<string, any>>({});
   const { setSelectedSymbol, setActiveTab } = useStock();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -14,36 +15,73 @@ export default function LeadersTab() {
     let mounted = true;
     let interval: NodeJS.Timeout;
 
-    async function fetchAll(isInitial: boolean = false) {
-      if (isInitial) setIsLoading(true);
+    async function fetchStaticData() {
+      if (!mounted) return;
+      setIsLoading(true);
 
-      const profs: Record<string, any> = {};
-      const qs: Record<string, any> = {};
+      const now = new Date();
+      const today = now.toISOString().split('T')[0];
+      const future = new Date();
+      future.setMonth(future.getMonth() + 6);
+      const sixMonthsFromNow = future.toISOString().split('T')[0];
 
-      // Fetch in batches of 5 to avoid hammering the Finnhub API rate limits too hard simultaneously
+      // Fetch in batches of 5
       for (let i = 0; i < SYMBOLS.length; i += 5) {
         if (!mounted) break;
         const batch = SYMBOLS.slice(i, i + 5);
         await Promise.all(
           batch.map(async (sym) => {
-            const [p, q] = await Promise.all([getProfile(sym), getQuote(sym)]);
-            if (p) profs[sym] = p;
+            const [p, e] = await Promise.all([
+               getProfile(sym),
+               getEarnings(today, sixMonthsFromNow, sym)
+            ]);
+            if (mounted && p) setProfiles(prev => ({ ...prev, [sym]: p }));
+            if (mounted && e && e.earningsCalendar && e.earningsCalendar.length > 0) {
+              // Finnhub may return dates in descending order (further out dates first).
+              // Sort them ascending to grab the very next upcoming date.
+              const sortedEarnings = [...e.earningsCalendar].sort((a, b) => {
+                return new Date(a.date).getTime() - new Date(b.date).getTime();
+              });
+              setEarnings(prev => ({ ...prev, [sym]: sortedEarnings[0] }));
+            }
+          })
+        );
+        // Small delay to help stay within rate limits (60/min)
+        if (i + 5 < SYMBOLS.length) await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+      if (mounted) setIsLoading(false);
+    }
+
+    async function fetchQuotes() {
+      if (!mounted) return;
+      const qs: Record<string, any> = {};
+
+      for (let i = 0; i < SYMBOLS.length; i += 5) {
+        if (!mounted) break;
+        const batch = SYMBOLS.slice(i, i + 5);
+        await Promise.all(
+          batch.map(async (sym) => {
+            const q = await getQuote(sym);
             if (q) qs[sym] = q;
           })
         );
+        // Small delay to help stay within rate limits (60/min)
+        if (i + 5 < SYMBOLS.length) await new Promise(resolve => setTimeout(resolve, 500));
       }
 
       if (mounted) {
-        setProfiles(profs);
-        setQuotes(qs);
-        setIsLoading(false);
+        setQuotes(prev => ({ ...prev, ...qs }));
       }
     }
 
-    fetchAll(true);
+    // Sequence the initial loads to manage heavy initial batching
+    (async () => {
+      await fetchStaticData();
+      await fetchQuotes();
+    })();
 
     interval = setInterval(() => {
-      fetchAll(false);
+      fetchQuotes();
     }, 60000); // Polling every 60s
 
     return () => {
@@ -170,9 +208,49 @@ export default function LeadersTab() {
                     ) : "N/A"}
                   </span>
                 </div>
-                <div className="flex flex-col col-span-2 mt-1">
-                  <span className="text-gray-500 mb-0.5">IPO Date</span>
-                  <span className="text-white">{profile.ipo || "N/A"}</span>
+                <div className="flex flex-col col-span-2 mt-1 border-t border-white/5 pt-2">
+                  <span className="flex items-center gap-1.5 text-indigo-400 font-bold mb-0.5 uppercase tracking-[0.1em] text-[9px]">
+                    <Calendar className="w-3 h-3" />
+                    Next Earnings {earnings[sym]?.quarter && earnings[sym]?.year && earnings[sym]?.hour ? `(Q${earnings[sym].quarter} '${earnings[sym].year.toString().slice(-2)})` : ''}
+                  </span>
+                  <div className="text-white flex items-center justify-between w-full">
+                    {(() => {
+                      if (!earnings[sym] || !earnings[sym].date || !earnings[sym].hour) {
+                        return <span className="text-gray-400">Undetermined</span>;
+                      }
+
+                      const [year, month, day] = earnings[sym].date.split('-');
+                      if (!year || !month || !day) return <span className="text-gray-400">Undetermined</span>;
+
+                      const localDate = new Date(Number(year), Number(month) - 1, Number(day));
+                      const dayOfWeek = localDate.toLocaleDateString(undefined, { weekday: 'short' });
+                      const formattedDate = localDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+                      
+                      const now = new Date();
+                      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                      const diffTime = localDate.getTime() - today.getTime();
+                      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                      const daysRemainingText = diffDays === 0 ? "Today" : diffDays < 0 ? "Passed" : `${diffDays} days remaining`;
+                      
+                      let hourLabel = earnings[sym].hour.toUpperCase();
+                      if (earnings[sym].hour === 'amc') hourLabel = 'After Market Close';
+                      if (earnings[sym].hour === 'bmo') hourLabel = 'Before Market Open';
+
+                      return (
+                        <div className="flex flex-col w-full">
+                          <div className="flex items-center justify-between w-full">
+                            <span>{dayOfWeek}, {formattedDate}</span>
+                            <span className="text-[10px] bg-white/5 px-1.5 py-0.5 rounded text-gray-400 whitespace-nowrap ml-2">
+                              {hourLabel}
+                            </span>
+                          </div>
+                          <span className="text-[10px] text-gray-500 mt-0.5">
+                            {daysRemainingText}
+                          </span>
+                        </div>
+                      );
+                    })()}
+                  </div>
                 </div>
               </div>
 
