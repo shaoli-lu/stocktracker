@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getEarnings, getProfile } from "@/lib/api";
+import { getEarnings, getProfile, getQuote } from "@/lib/api";
 import { ChevronRight, DollarSign, Building, Globe, ChevronLeft, ChevronRight as IconRight, Calendar as CalendarIcon, Phone, ExternalLink, Star, TrendingUp, TrendingDown, Target, Activity } from "lucide-react";
 import { useStock } from "@/lib/StockContext";
 import { SYMBOLS } from "@/lib/data";
@@ -14,6 +14,7 @@ export default function EarningsTab() {
 
   const [earningsByDay, setEarningsByDay] = useState<Record<number, any[]>>({});
   const [profiles, setProfiles] = useState<Record<string, any>>({});
+  const [quotes, setQuotes] = useState<Record<string, any>>({});
   const [isLoading, setIsLoading] = useState(true);
   const { setSelectedSymbol, setActiveTab } = useStock();
 
@@ -75,6 +76,7 @@ export default function EarningsTab() {
       setEarningsByDay(grouped);
 
       const ps: Record<string, any> = {};
+      const qs: Record<string, any> = {};
       const symArray = Array.from(symbolsToFetch);
 
       // fetch in small batches, wait 500ms between batches to stay under rate limits
@@ -84,8 +86,12 @@ export default function EarningsTab() {
         await Promise.all(
           batch.map(async (sym) => {
             // Check cache to avoid rate hits immediately
-            const p = profiles[sym] ? profiles[sym] : await getProfile(sym).catch(()=>null);
+            const profilePromise = profiles[sym] ? Promise.resolve(profiles[sym]) : getProfile(sym).catch(()=>null);
+            const quotePromise = getQuote(sym).catch(()=>null);
+            
+            const [p, q] = await Promise.all([profilePromise, quotePromise]);
             if (p) ps[sym] = p;
+            if (q) qs[sym] = q;
           })
         );
         if (i + 5 < symArray.length) await new Promise(r => setTimeout(r, 600));
@@ -93,6 +99,7 @@ export default function EarningsTab() {
 
       if (mounted) {
         setProfiles(prev => ({ ...prev, ...ps }));
+        setQuotes(prev => ({ ...prev, ...qs }));
         setIsLoading(false);
       }
     }
@@ -202,6 +209,21 @@ export default function EarningsTab() {
                               </p>
                             </div>
                           </div>
+
+                          {quotes[e.symbol] && (
+                            <div className="flex flex-col items-end text-right shrink-0">
+                              <div className="text-base font-black text-white leading-none mb-1">
+                                ${quotes[e.symbol].c?.toFixed(2)}
+                              </div>
+                              <div className={`text-[10px] font-bold flex items-center gap-1 leading-none ${quotes[e.symbol].d >= 0 ? "text-green-400" : "text-red-400"}`}>
+                                {quotes[e.symbol].d >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                                {quotes[e.symbol].d > 0 ? "+" : ""}{quotes[e.symbol].d?.toFixed(2)} ({quotes[e.symbol].dp?.toFixed(2)}%)
+                              </div>
+                              <div className="text-[8px] text-gray-500 font-medium mt-1 leading-none">
+                                {new Date(quotes[e.symbol].t * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
+                              </div>
+                            </div>
+                          )}
                         </div>
 
 
