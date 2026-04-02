@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { getEarnings, getProfile } from "@/lib/api";
-import { ChevronRight, DollarSign, Building, Globe, ChevronLeft, ChevronRight as IconRight, Calendar as CalendarIcon, Phone, ExternalLink, Star } from "lucide-react";
+import { ChevronRight, DollarSign, Building, Globe, ChevronLeft, ChevronRight as IconRight, Calendar as CalendarIcon, Phone, ExternalLink, Star, TrendingUp, TrendingDown, Target, Activity } from "lucide-react";
 import { useStock } from "@/lib/StockContext";
 import { SYMBOLS } from "@/lib/data";
 
@@ -206,8 +206,64 @@ export default function EarningsTab() {
 
 
                         <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-auto border-t border-white/10 pt-3 z-10 flex flex-col gap-1.5">
-                           <span className="text-indigo-400">Q{e.quarter} '{e.year?.toString().slice(-2)} Report</span>
-                           <span className="text-white bg-white/5 py-1 px-2 rounded-md w-fit">{hourLabel}</span>
+                           <div className="flex justify-between items-center w-full">
+                             <div className="flex flex-col gap-0.5">
+                               <span className="text-indigo-400">Q{e.quarter} '{e.year?.toString().slice(-2)} Report</span>
+                               <span className="text-white bg-white/5 py-1 px-2 rounded-md w-fit flex items-center gap-1.5">
+                                  {hourLabel}
+                               </span>
+                             </div>
+                           </div>
+                           
+                           <div className="flex flex-col gap-2 mt-2 p-3 bg-black/40 rounded-xl border border-white/5">
+                              {/* EPS Section */}
+                              <div className="flex flex-col gap-1">
+                                <div className="flex justify-between items-center text-[10px]">
+                                  <span className="text-gray-400 flex items-center gap-1.5"><Target className="w-3.5 h-3.5 text-indigo-400"/> EPS</span>
+                                  <span className="text-gray-400">
+                                    Est {e.epsEstimate !== null && e.epsEstimate !== undefined ? e.epsEstimate.toFixed(2) : "N/A"}
+                                  </span>
+                                </div>
+                                {e.epsActual !== null && e.epsActual !== undefined && (
+                                  <div className="flex justify-between items-center text-[10px]">
+                                    <span className="font-bold text-white pl-5">Actual: {e.epsActual.toFixed(2)}</span>
+                                    {e.epsEstimate !== null && e.epsEstimate !== undefined && (
+                                      <span className={`flex items-center gap-0.5 font-bold ${e.epsActual >= e.epsEstimate ? "text-green-400" : "text-red-400"}`}>
+                                        {e.epsActual >= e.epsEstimate ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                                        {e.epsActual >= e.epsEstimate ? "Beat by $" : "Miss by $"}{Math.abs(e.epsActual - e.epsEstimate).toFixed(2)} ({e.epsActual >= e.epsEstimate ? "+" : ""}{((e.epsActual - e.epsEstimate) / (Math.abs(e.epsEstimate) || 1) * 100).toFixed(1)}%)
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                              
+                              {/* Revenue Section */}
+                              <div className="flex flex-col gap-1 mt-1 border-t border-white/5 pt-2">
+                                <div className="flex justify-between items-center text-[10px]">
+                                  <span className="text-gray-400 flex items-center gap-1.5"><Activity className="w-3.5 h-3.5 text-indigo-400"/> Revenue</span>
+                                  <span className="text-gray-400">
+                                    Est {e.revenueEstimate !== null && e.revenueEstimate !== undefined ? (e.revenueEstimate >= 1e9 ? `$${(e.revenueEstimate / 1e9).toFixed(2)}B` : e.revenueEstimate >= 1e6 ? `$${(e.revenueEstimate / 1e6).toFixed(2)}M` : `$${e.revenueEstimate.toLocaleString()}`) : "N/A"}
+                                  </span>
+                                </div>
+                                {e.revenueActual !== null && e.revenueActual !== undefined && (
+                                  <div className="flex justify-between items-center text-[10px]">
+                                    <span className="font-bold text-white pl-5">Actual: {e.revenueActual >= 1e9 ? `$${(e.revenueActual / 1e9).toFixed(2)}B` : e.revenueActual >= 1e6 ? `$${(e.revenueActual / 1e6).toFixed(2)}M` : `$${e.revenueActual.toLocaleString()}`}</span>
+                                    {e.revenueEstimate !== null && e.revenueEstimate !== undefined && (
+                                      <span className={`flex items-center gap-0.5 font-bold ${e.revenueActual >= e.revenueEstimate ? "text-green-400" : "text-red-400"}`}>
+                                        {e.revenueActual >= e.revenueEstimate ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                                        {e.revenueActual >= e.revenueEstimate ? "Beat by $" : "Miss by $"}{Math.abs(e.revenueActual - e.revenueEstimate) >= 1e9 ? `${(Math.abs(e.revenueActual - e.revenueEstimate) / 1e9).toFixed(2)}B` : Math.abs(e.revenueActual - e.revenueEstimate) >= 1e6 ? `${(Math.abs(e.revenueActual - e.revenueEstimate) / 1e6).toFixed(2)}M` : `${Math.abs(e.revenueActual - e.revenueEstimate).toLocaleString()}`} ({e.revenueActual >= e.revenueEstimate ? "+" : ""}{((e.revenueActual - e.revenueEstimate) / (Math.abs(e.revenueEstimate) || 1) * 100).toFixed(1)}%)
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                              
+                              {e.epsActual !== null && e.epsActual !== undefined && e.epsEstimate !== null && e.epsEstimate !== undefined && (
+                                 <div className={`text-[9px] py-1 px-2 rounded-md font-bold mt-1.5 text-center flex items-center justify-center gap-1.5 ${e.epsActual >= e.epsEstimate ? "bg-green-500/10 text-green-400 border border-green-500/20" : "bg-red-500/10 text-red-400 border border-red-500/20"}`}>
+                                    {e.epsActual >= e.epsEstimate ? "POSITIVE MARKET REACTION" : "NEGATIVE MARKET REACTION"}
+                                 </div>
+                              )}
+                           </div>
                         </div>
                         
                         {profile.weburl && (
