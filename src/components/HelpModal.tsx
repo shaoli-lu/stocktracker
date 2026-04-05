@@ -80,16 +80,16 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                   Welcome
                 </motion.h3>
                 <p className="text-gray-300 leading-relaxed text-sm">
-                  MarketHeat aggregates real-time data to give you a competitive edge in your trading journey.
+                  MarketHeat aggregates real-time data for informational and casual exploration of market trends.
                 </p>
               </section>
 
               <div className="grid grid-cols-1 gap-3">
                 {[
-                  { icon: Zap, title: "Real-time Insights", desc: "Ultra-low latency market mover updates.", color: "text-indigo-400" },
-                  { icon: BarChart3, title: "Pro Analytics", desc: "Advanced charting and market depth.", color: "text-fuchsia-400" },
-                  { icon: Calendar, title: "Earnings Sync", desc: "Interactive weekly earnings calendar.", color: "text-emerald-400" },
-                  { icon: Layout, title: "Visual Heatmaps", desc: "Dynamic, color-coded market heatmaps.", color: "text-amber-400" },
+                  { icon: Zap, title: "Market Insights", desc: "View real-time mover updates for casual monitoring.", color: "text-indigo-400" },
+                  { icon: BarChart3, title: "Visual Analytics", desc: "Explore candlestick charting and market depth.", color: "text-fuchsia-400" },
+                  { icon: Calendar, title: "Earnings View", desc: "Browse the weekly earnings calendar.", color: "text-emerald-400" },
+                  { icon: Layout, title: "Heatmap View", desc: "See the market at a glance with color-coded maps.", color: "text-amber-400" },
                 ].map((item, idx) => (
                   <motion.div
                     key={idx}
@@ -121,10 +121,24 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                   <div className="space-y-1">
                     <h4 className="text-white font-bold text-sm">Quick Search</h4>
                     <p className="text-xs text-gray-400 leading-relaxed font-medium">
-                      Use the global search at the top to instantly pull up any symbol. Press <kbd className="px-2 py-0.5 rounded bg-gray-800 text-gray-100 border border-gray-600 text-[10px] font-mono shadow-sm">Enter</kbd> to search deeper.
+                      Use the search bar at the top to find any symbol. Press <kbd className="px-2 py-0.5 rounded bg-gray-800 text-gray-100 border border-gray-600 text-[10px] font-mono shadow-sm">Enter</kbd> to refresh results.
                     </p>
                   </div>
                 </div>
+              </motion.section>
+
+              <motion.section 
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                className="p-4 rounded-xl bg-red-500/5 border border-red-500/10"
+              >
+                <h4 className="text-red-400 text-[10px] font-black uppercase tracking-widest mb-1.5 flex items-center gap-2">
+                  <span className="w-1 h-1 rounded-full bg-red-400" />
+                  Legal Disclaimer
+                </h4>
+                <p className="text-[10px] text-gray-500 leading-relaxed italic">
+                  Information provided is for casual use and education only. No guarantee of accuracy. Past performance does not represent future results. Not intended for trading or financial advice.
+                </p>
               </motion.section>
             </div>
 
@@ -134,7 +148,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                 onClick={onClose}
                 className="w-full px-8 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs uppercase tracking-widest transition-all shadow-xl shadow-indigo-500/40 active:scale-95 flex items-center justify-center gap-2"
               >
-                Start Trading
+                Got it, thanks!
                 <motion.div
                   animate={{ x: [0, 5, 0] }}
                   transition={{ repeat: Infinity, duration: 1.5 }}

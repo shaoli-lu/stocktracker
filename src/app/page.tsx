@@ -123,9 +123,18 @@ export default function Home() {
               <Activity className="text-white w-8 h-8" strokeWidth={2.5} />
             </div>
             <div>
-              <h1 className="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-white via-indigo-200 to-indigo-500">
-                MarketHeat
-              </h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-white via-indigo-200 to-indigo-500">
+                  MarketHeat
+                </h1>
+                <button 
+                  onClick={() => setIsHelpOpen(true)}
+                  className="p-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-indigo-500/50 text-indigo-400 transition-all active:scale-90"
+                  aria-label="Help Guide"
+                >
+                  <HelpCircle className="w-5 h-5" />
+                </button>
+              </div>
               <p className="text-sm text-indigo-400 font-bold tracking-widest uppercase">
                 Wealth Engine
               </p>
@@ -187,17 +196,6 @@ export default function Home() {
                 )}
               </div>
             )}
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => setIsHelpOpen(true)}
-              className="flex items-center gap-2 px-5 py-3.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-indigo-500/50 text-indigo-400 font-bold text-sm transition-all shadow-lg active:scale-95 group"
-            >
-              <HelpCircle className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-              <span className="hidden sm:inline">Guide</span>
-            </button>
           </div>
         </header>
 
