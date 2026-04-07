@@ -6,7 +6,7 @@ import { SYMBOLS } from "@/lib/data";
 
 export default function NewsTab() {
   const { selectedSymbol } = useStock();
-  const [newsScope, setNewsScope] = useState("ALL");
+  const [newsScope, setNewsScope] = useState(selectedSymbol);
   const [prevScopeSymbol, setPrevScopeSymbol] = useState(selectedSymbol);
   
   const [news, setNews] = useState<any[]>([]);
