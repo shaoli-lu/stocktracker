@@ -48,7 +48,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
             {/* Header */}
             <div className="relative p-4 border-b border-white/5 flex justify-between items-center bg-transparent">
               <div className="flex items-center gap-3">
-                <motion.div 
+                <motion.div
                   initial={{ rotate: -10, scale: 0.8 }}
                   animate={{ rotate: 0, scale: 1 }}
                   className="p-2.5 rounded-xl bg-indigo-500/20 border border-indigo-500/30"
@@ -72,7 +72,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
             {/* Content */}
             <div className="relative flex-grow overflow-y-auto p-4 md:p-6 space-y-4 no-scrollbar scroll-smooth">
               <section className="space-y-2">
-                <motion.h3 
+                <motion.h3
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   className="text-sm font-black uppercase tracking-[0.2em] text-indigo-400"
@@ -80,7 +80,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                   Welcome
                 </motion.h3>
                 <p className="text-gray-300 leading-relaxed text-sm">
-                  MarketHeat aggregates real-time data for informational and casual exploration of market trends.
+                  MarketHeat aggregates real-time data for informational and casual exploration of market pulse.
                 </p>
               </section>
 
@@ -109,7 +109,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                 ))}
               </div>
 
-              <motion.section 
+              <motion.section
                 initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 className="p-4 rounded-xl bg-indigo-600/10 border border-indigo-500/20 border-dashed"
@@ -127,7 +127,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                 </div>
               </motion.section>
 
-              <motion.section 
+              <motion.section
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 className="p-4 rounded-xl bg-red-500/5 border border-red-500/10"
