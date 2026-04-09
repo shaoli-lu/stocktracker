@@ -33,9 +33,7 @@ export default function Home() {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   const searchRef = useRef<HTMLDivElement>(null);
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Shared fetch function (used by debounce + Enter)
+  // Shared fetch function (used by Enter + Go button)
   const fetchResults = async (query: string) => {
     if (!query.trim()) {
       setSearchResults([]);
@@ -53,35 +51,13 @@ export default function Home() {
           description: r.description,
         }));
       setSearchResults(formatted);
+      setIsSearchOpen(true); // Open only after results are ready
     } catch (error) {
       console.error(error);
     } finally {
       setIsSearching(false);
     }
   };
-
-  // Debounced preview when typing
-  useEffect(() => {
-    if (!searchQuery.trim()) {
-      setSearchResults([]);
-      setIsSearching(false);
-      return;
-    }
-
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-
-    debounceRef.current = setTimeout(() => {
-      fetchResults(searchQuery);
-    }, 600); // debounce delay (ms)
-
-    return () => {
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
-    };
-  }, [searchQuery]);
 
   // Close search dropdown when clicking outside
   useEffect(() => {
@@ -106,11 +82,12 @@ export default function Home() {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
       fetchResults(searchQuery); // immediate search on Enter
     }
+  };
+
+  const handleSearchClick = () => {
+    fetchResults(searchQuery);
   };
 
   return (
@@ -142,25 +119,39 @@ export default function Home() {
           </div>
 
           {/* Global Search */}
-          <div className="relative w-full md:w-[450px]" ref={searchRef}>
-            <div className="relative flex flex-col justify-center">
-              <Search className="absolute left-4 text-gray-400 w-5 h-5 pointer-events-none" />
-              <input
-                type="text"
-                placeholder="Search by Symbol..."
-                className="w-full bg-black/40 backdrop-blur-md border border-gray-700/50 focus:border-indigo-500 rounded-full py-3.5 pl-12 pr-12 text-base font-medium text-white placeholder-gray-400 outline-none transition-all shadow-inner hover:bg-black/60 focus:bg-black/80"
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setIsSearchOpen(true);
-                }}
-                onFocus={() => setIsSearchOpen(true)}
-                onClick={(e) => e.stopPropagation()}
-                onKeyDown={handleKeyDown}
-              />
-              {isSearching && (
-                <Loader2 className="absolute right-4 text-indigo-400 w-5 h-5 animate-spin pointer-events-none" />
-              )}
+          <div className="relative w-full md:w-[480px]" ref={searchRef}>
+            <div className="relative flex items-center">
+              <div className="relative flex-grow">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
+                <input
+                  type="text"
+                  placeholder="Search by Symbol..."
+                  className="w-full bg-black/40 backdrop-blur-md border border-gray-700/50 focus:border-indigo-500 rounded-full py-3.5 pl-12 pr-4 text-base font-medium text-white placeholder-gray-400 outline-none transition-all shadow-inner hover:bg-black/60 focus:bg-black/80"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    if (!e.target.value) {
+                      setIsSearchOpen(false);
+                      setSearchResults([]);
+                    }
+                  }}
+                  onFocus={() => {
+                    if (searchResults.length > 0) setIsSearchOpen(true);
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                  onKeyDown={handleKeyDown}
+                />
+                {isSearching && (
+                  <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 text-indigo-400 w-5 h-5 animate-spin pointer-events-none" />
+                )}
+              </div>
+              <button
+                onClick={handleSearchClick}
+                disabled={!searchQuery.trim() || isSearching}
+                className="ml-2 px-6 py-3.5 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm tracking-widest transition-all shadow-lg shadow-indigo-500/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 uppercase"
+              >
+                Go
+              </button>
             </div>
 
             {isSearchOpen && searchQuery && (

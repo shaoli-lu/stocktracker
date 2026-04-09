@@ -121,7 +121,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                   <div className="space-y-1">
                     <h4 className="text-white font-bold text-sm">Quick Search</h4>
                     <p className="text-xs text-gray-400 leading-relaxed font-medium">
-                      Use the search bar at the top to find any symbol. Press <kbd className="px-2 py-0.5 rounded bg-gray-800 text-gray-100 border border-gray-600 text-[10px] font-mono shadow-sm">Enter</kbd> to refresh results.
+                      Use the search bar at the top to find any symbol. Press <kbd className="px-2 py-0.5 rounded bg-gray-800 text-gray-100 border border-gray-600 text-[10px] font-mono shadow-sm">Enter</kbd> or the <span className="text-indigo-400 font-bold">Go</span> button to refresh results.
                     </p>
                   </div>
                 </div>
