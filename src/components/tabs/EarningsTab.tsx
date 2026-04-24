@@ -12,7 +12,9 @@ export default function EarningsTab() {
     return new Date(d.setDate(diff));
   });
 
-  const [earningsByDay, setEarningsByDay] = useState<Record<number, any[]>>({});
+  const [fullEarningsByDay, setFullEarningsByDay] = useState<Record<number, any[]>>({});
+  const [visibleCounts, setVisibleCounts] = useState<Record<number, number>>({ 1: 4, 2: 4, 3: 4, 4: 4, 5: 4 });
+  const [loadingMoreDay, setLoadingMoreDay] = useState<number | null>(null);
   const [profiles, setProfiles] = useState<Record<string, any>>({});
   const [quotes, setQuotes] = useState<Record<string, any>>({});
   const [isLoading, setIsLoading] = useState(true);
@@ -34,7 +36,8 @@ export default function EarningsTab() {
     let mounted = true;
     async function fetchWeekData() {
       setIsLoading(true);
-      setEarningsByDay({});
+      setFullEarningsByDay({});
+      setVisibleCounts({ 1: 4, 2: 4, 3: 4, 4: 4, 5: 4 });
 
       // Always grab from Monday to Friday
       const fromDate = new Date(currentWeekStart.getFullYear(), currentWeekStart.getMonth(), currentWeekStart.getDate());
@@ -66,14 +69,14 @@ export default function EarningsTab() {
         const dateObj = new Date(Number(y), Number(m) - 1, Number(d));
         const day = dateObj.getDay();
         if (day >= 1 && day <= 5) {
-          if (grouped[day].length < 4) { // Top 4 companies per day
-            grouped[day].push(e);
+          grouped[day].push(e);
+          if (grouped[day].length <= 4) { // Initial 4 companies to fetch
             symbolsToFetch.add(e.symbol);
           }
         }
       }
 
-      setEarningsByDay(grouped);
+      setFullEarningsByDay(grouped);
 
       const ps: Record<string, any> = {};
       const qs: Record<string, any> = {};
@@ -108,6 +111,38 @@ export default function EarningsTab() {
 
     return () => { mounted = false; };
   }, [currentWeekStart]); // Only fetch when week changes
+
+  const handleLoadMore = async (day: number) => {
+    setLoadingMoreDay(day);
+    const currentCount = visibleCounts[day] || 4;
+    const newCount = currentCount + 4;
+    
+    const earningsForDay = fullEarningsByDay[day] || [];
+    const newlyVisible = earningsForDay.slice(currentCount, newCount);
+    
+    const symbolsToFetch = newlyVisible.map(e => e.symbol).filter(sym => !profiles[sym] || !quotes[sym]);
+    
+    if (symbolsToFetch.length > 0) {
+      const ps: Record<string, any> = {};
+      const qs: Record<string, any> = {};
+      
+      await Promise.all(
+        symbolsToFetch.map(async (sym) => {
+          const profilePromise = profiles[sym] ? Promise.resolve(profiles[sym]) : getProfile(sym).catch(() => null);
+          const quotePromise = quotes[sym] ? Promise.resolve(quotes[sym]) : getQuote(sym).catch(() => null);
+          const [p, q] = await Promise.all([profilePromise, quotePromise]);
+          if (p) ps[sym] = p;
+          if (q) qs[sym] = q;
+        })
+      );
+      
+      setProfiles(prev => ({ ...prev, ...ps }));
+      setQuotes(prev => ({ ...prev, ...qs }));
+    }
+    
+    setVisibleCounts(prev => ({ ...prev, [day]: newCount }));
+    setLoadingMoreDay(null);
+  };
 
   const getDayName = (dayIndex: number) => {
     switch (dayIndex) {
@@ -177,12 +212,13 @@ export default function EarningsTab() {
                 </div>
 
                 <div className="flex flex-col gap-4 h-full">
-                  {!earningsByDay[day] || earningsByDay[day].length === 0 ? (
+                  {!fullEarningsByDay[day] || fullEarningsByDay[day].length === 0 ? (
                     <div className="flex-grow flex items-center justify-center border-2 border-dashed border-white/5 rounded-2xl p-6 text-center">
                       <span className="text-sm font-bold text-gray-600">No major earnings today<br />/ Market Holiday</span>
                     </div>
                   ) : (
-                    earningsByDay[day].map(e => {
+                    <>
+                    {fullEarningsByDay[day].slice(0, visibleCounts[day] || 4).map(e => {
                       const profile = profiles[e.symbol] || {};
 
 
@@ -305,7 +341,24 @@ export default function EarningsTab() {
                           )}
                         </div>
                       );
-                    })
+                    })}
+                    {fullEarningsByDay[day].length > (visibleCounts[day] || 4) && (
+                      <button
+                        onClick={() => handleLoadMore(day)}
+                        disabled={loadingMoreDay === day}
+                        className="glass-panel p-3 rounded-xl border border-white/10 hover:bg-white/5 transition-all text-sm font-bold text-indigo-400 w-full flex items-center justify-center gap-2 mt-2"
+                      >
+                        {loadingMoreDay === day ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                            Loading...
+                          </>
+                        ) : (
+                          "Load More"
+                        )}
+                      </button>
+                    )}
+                    </>
                   )}
                 </div>
               </div>
