@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { getCompanyNews } from "@/lib/api";
 import { useStock } from "@/lib/StockContext";
-import { Newspaper, ExternalLink, Calendar, ChevronDown } from "lucide-react";
+import { Newspaper, ExternalLink, Calendar, ChevronDown, Filter } from "lucide-react";
 import { SYMBOLS } from "@/lib/data";
+
+const SOURCES = ['ChartMill', 'Benzinga', 'Yahoo', 'Reuters', 'SeekingAlpha', 'CNBC', 'Other'];
 
 export default function NewsTab() {
   const { selectedSymbol } = useStock();
@@ -11,6 +13,8 @@ export default function NewsTab() {
   
   const [news, setNews] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(15);
+  const [activeSources, setActiveSources] = useState<string[]>([]);
 
   // Sync with global header if user makes a global search
   if (selectedSymbol !== prevScopeSymbol) {
@@ -57,6 +61,37 @@ export default function NewsTab() {
     };
   }, [newsScope]);
 
+  useEffect(() => {
+    setVisibleCount(15);
+  }, [newsScope]);
+
+  const toggleSource = (source: string) => {
+    if (source === 'All') {
+      setActiveSources([]);
+    } else {
+      setActiveSources(prev => {
+        if (prev.length === 1 && prev[0] === source) {
+          return [];
+        }
+        return [source];
+      });
+    }
+    setVisibleCount(15);
+  };
+
+  const filteredNews = news.filter(item => {
+    if (activeSources.length === 0) return true;
+    
+    const s = item.source?.toLowerCase() || '';
+    if (s.includes('chartmill')) return activeSources.includes('ChartMill');
+    if (s.includes('benzinga')) return activeSources.includes('Benzinga');
+    if (s.includes('yahoo')) return activeSources.includes('Yahoo');
+    if (s.includes('reuters')) return activeSources.includes('Reuters');
+    if (s.includes('seekingalpha') || s.includes('seeking alpha')) return activeSources.includes('SeekingAlpha');
+    if (s.includes('cnbc')) return activeSources.includes('CNBC');
+    return activeSources.includes('Other');
+  });
+
   return (
     <div className="flex-grow flex flex-col p-4 animate-in slide-in-from-bottom-4 duration-500 pb-12 w-full max-w-7xl mx-auto">
       <div className="flex flex-col md:flex-row items-center justify-between mb-8 z-10 glass-panel px-6 py-5 rounded-3xl gap-4">
@@ -92,15 +127,51 @@ export default function NewsTab() {
          </div>
       </div>
 
-      {!isLoading && news.length === 0 && (
+      {/* Source Filters */}
+      <div className="flex flex-wrap items-center gap-3 mb-8 z-10 glass-panel px-6 py-4 rounded-3xl w-full border border-white/5 shadow-lg">
+        <div className="flex items-center gap-2 text-gray-400 font-bold text-sm mr-2">
+          <Filter className="w-4 h-4" />
+          Sources:
+        </div>
+        <button
+          onClick={() => toggleSource('All')}
+          className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${
+            activeSources.length === 0 
+              ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/50 shadow-[0_0_10px_rgba(99,102,241,0.2)]' 
+              : 'bg-black/40 text-gray-500 border-white/5 hover:border-white/20 hover:text-gray-300'
+          }`}
+        >
+          All
+        </button>
+        {SOURCES.map(source => {
+          const isActive = activeSources.includes(source);
+          return (
+            <button
+              key={source}
+              onClick={() => toggleSource(source)}
+              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${
+                isActive 
+                  ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/50 shadow-[0_0_10px_rgba(99,102,241,0.2)]' 
+                  : 'bg-black/40 text-gray-500 border-white/5 hover:border-white/20 hover:text-gray-300'
+              }`}
+            >
+              {source}
+            </button>
+          );
+        })}
+      </div>
+
+      {!isLoading && filteredNews.length === 0 && (
         <div className="glass-panel py-20 rounded-[2rem] flex flex-col items-center justify-center border border-white/5 text-gray-400 text-center font-semibold">
            <Newspaper className="w-16 h-16 opacity-20 mb-4" />
-           <p className="text-xl">No major news for {newsScope} in the past 7 days.</p>
+           <p className="text-xl">
+             {news.length === 0 ? `No major news for ${newsScope} in the past 7 days.` : `No news found for ${newsScope} matching selected sources.`}
+           </p>
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 z-10 w-full mb-12">
-        {news.slice(0, 15).map((item, idx) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 z-10 w-full mb-8">
+        {filteredNews.slice(0, visibleCount).map((item, idx) => (
           <a
             key={item.id || idx}
             href={item.url}
@@ -134,6 +205,17 @@ export default function NewsTab() {
           </a>
         ))}
       </div>
+
+      {filteredNews.length > visibleCount && (
+        <div className="flex justify-center mb-12">
+          <button
+            onClick={() => setVisibleCount(prev => prev + 15)}
+            className="glass-panel px-8 py-3 rounded-xl border border-white/10 hover:bg-white/5 transition-all text-sm font-bold text-indigo-400 flex items-center justify-center gap-2 shadow-lg"
+          >
+            Load More Articles
+          </button>
+        </div>
+      )}
     </div>
   );
 }
