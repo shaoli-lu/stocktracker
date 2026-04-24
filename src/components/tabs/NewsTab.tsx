@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { getCompanyNews } from "@/lib/api";
 import { useStock } from "@/lib/StockContext";
-import { Newspaper, ExternalLink, Calendar, ChevronDown, Filter } from "lucide-react";
+import { Newspaper, ExternalLink, Calendar, ChevronDown, Filter, Pointer } from "lucide-react";
 import { SYMBOLS } from "@/lib/data";
 
 const SOURCES = ['ChartMill', 'Benzinga', 'Yahoo', 'Reuters', 'SeekingAlpha', 'CNBC', 'Other'];
@@ -105,20 +105,24 @@ export default function NewsTab() {
            </div>
          </div>
          
-         <div className="flex items-center gap-4 w-full md:w-auto">
-            <div className="relative w-full md:w-48">
-              <select
-                value={newsScope}
-                onChange={(e) => setNewsScope(e.target.value)}
-                onClick={(e) => e.stopPropagation()}
-                className="w-full appearance-none bg-black/60 border border-gray-700 focus:border-indigo-500 text-white pl-5 pr-12 py-3 rounded-2xl font-bold cursor-pointer outline-none transition-all shadow-inner hover:bg-black/80"
-              >
+          <div className="flex items-center gap-4 w-full md:w-auto">
+             <div className="hidden md:flex items-center gap-2 text-indigo-400 font-bold text-sm bg-indigo-500/10 px-3 py-1.5 rounded-xl border border-indigo-500/20">
+               <Pointer className="w-4 h-4 rotate-90" />
+               Pick Symbol
+             </div>
+             <div className="relative w-full md:w-48">
+               <select
+                 value={newsScope}
+                 onChange={(e) => setNewsScope(e.target.value)}
+                 onClick={(e) => e.stopPropagation()}
+                 className="w-full appearance-none bg-black/80 border-2 border-indigo-500/50 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/30 text-white pl-5 pr-12 py-3 rounded-2xl font-black cursor-pointer outline-none transition-all shadow-[0_0_20px_rgba(99,102,241,0.2)] hover:border-indigo-400 hover:bg-black/90"
+               >
               <option value="ALL">All Market</option>
               {(!SYMBOLS.includes(newsScope) && newsScope !== "ALL" ? [newsScope, ...SYMBOLS] : SYMBOLS).map((s) => (
                 <option key={s} value={s}>{s}</option>
               ))}
               </select>
-              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-indigo-300 pointer-events-none" />
             </div>
             
            {isLoading && (
