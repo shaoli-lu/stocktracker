@@ -16,7 +16,7 @@ import NewsTab from "@/components/tabs/NewsTab";
 import EarningsTab from "@/components/tabs/EarningsTab";
 
 const TABS = [
-  { id: "Leaders", icon: User },
+  { id: "Mag7+", icon: User },
   { id: "News", icon: FileText },
   { id: "Earnings", icon: CalendarIcon },
   { id: "Candle", icon: BarChart2 },
@@ -218,7 +218,7 @@ export default function Home() {
 
         {/* CONTENT ENGINE */}
         <section className="flex-grow flex flex-col relative w-full h-full min-h-[500px]">
-          {activeTab === "Leaders" && <LeadersTab />}
+          {activeTab === "Mag7+" && <LeadersTab />}
           {activeTab === "News" && <NewsTab />}
           {activeTab === "Earnings" && <EarningsTab />}
           {activeTab === "Candle" && <CandleTab />}
