@@ -137,3 +137,9 @@ export async function getEarnings(from: string, to: string, symbol?: string) {
   const key = `earnings_${symbol || "all"}_${from}_${to}`;
   return fetchWithFallback<any>(url, key);
 }
+
+export async function getMetric(symbol: string) {
+  const url = `${API_BASE_URL}/stock/metric?symbol=${symbol}&metric=all&token=${API_KEY}`;
+  const key = `metric_${symbol}`;
+  return fetchWithFallback<any>(url, key);
+}

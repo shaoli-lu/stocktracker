@@ -14,9 +14,11 @@ import CandleTab from "@/components/tabs/CandleTab";
 import HeatmapTab from "@/components/tabs/HeatmapTab";
 import NewsTab from "@/components/tabs/NewsTab";
 import EarningsTab from "@/components/tabs/EarningsTab";
+import MostActivesTab from "@/components/tabs/MostActivesTab";
 
 const TABS = [
   { id: "Mag7+", icon: User },
+  { id: "Most Actives", icon: Activity },
   { id: "News", icon: FileText },
   { id: "Earnings", icon: CalendarIcon },
   { id: "Candle", icon: BarChart2 },
@@ -219,6 +221,7 @@ export default function Home() {
         {/* CONTENT ENGINE */}
         <section className="flex-grow flex flex-col relative w-full h-full min-h-[500px]">
           {activeTab === "Mag7+" && <LeadersTab />}
+          {activeTab === "Most Actives" && <MostActivesTab />}
           {activeTab === "News" && <NewsTab />}
           {activeTab === "Earnings" && <EarningsTab />}
           {activeTab === "Candle" && <CandleTab />}
