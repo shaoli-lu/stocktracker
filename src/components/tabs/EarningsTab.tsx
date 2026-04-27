@@ -50,13 +50,16 @@ export default function EarningsTab() {
         return `${d.getFullYear()}-${mm}-${dd}`;
       };
 
-      const fromStr = formatYMD(fromDate);
-      const toStr = formatYMD(toDate);
+      const days = [0, 1, 2, 3, 4].map(d => {
+        const date = new Date(currentWeekStart.getFullYear(), currentWeekStart.getMonth(), currentWeekStart.getDate() + d);
+        return formatYMD(date);
+      });
 
-      const weekEarnings = await getEarnings(fromStr, toStr);
+      const allEarningsResponses = await Promise.all(days.map(dayStr => getEarnings(dayStr, dayStr)));
       if (!mounted) return;
 
-      const items = (weekEarnings?.earningsCalendar || [])
+      const items = allEarningsResponses
+        .flatMap(res => res?.earningsCalendar || [])
         .filter((e: any) => e.revenueEstimate)
         .sort((a: any, b: any) => Number(b.revenueEstimate) - Number(a.revenueEstimate));
 
