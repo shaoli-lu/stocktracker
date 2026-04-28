@@ -1,6 +1,53 @@
 import { SYMBOLS, API_KEY, API_BASE_URL } from "./data";
 
 /**
+ * Slims down the data object to save storage space.
+ * Specifically targets earnings calendar data which can be very large.
+ */
+function slimData(key: string, data: any): any {
+  if (key.startsWith("earnings_") && data && data.earningsCalendar) {
+    return {
+      ...data,
+      earningsCalendar: data.earningsCalendar.map((e: any) => ({
+        date: e.date,
+        symbol: e.symbol,
+        epsActual: e.epsActual,
+        epsEstimate: e.epsEstimate,
+        hour: e.hour,
+        quarter: e.quarter,
+        revenueActual: e.revenueActual,
+        revenueEstimate: e.revenueEstimate,
+        year: e.year,
+      })),
+    };
+  }
+  return data;
+}
+
+/**
+ * Safely sets an item in Storage, handling QuotaExceededError by clearing the cache.
+ */
+function safeSetItem(key: string, value: string) {
+  if (typeof window === "undefined") return;
+  
+  try {
+    sessionStorage.setItem(key, value);
+  } catch (e) {
+    if (e instanceof Error && (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
+      console.warn("Storage quota exceeded, clearing sessionStorage and retrying...");
+      try {
+        sessionStorage.clear();
+        sessionStorage.setItem(key, value);
+      } catch (retryError) {
+        console.error("Still exceeding quota after clear", retryError);
+      }
+    } else {
+      console.error("Error saving to Storage", e);
+    }
+  }
+}
+
+/**
  * Generic fetcher with fallback caching.
  */
 async function fetchWithFallback<T>(url: string, cacheKey: string): Promise<T | null> {
@@ -19,11 +66,11 @@ async function fetchWithFallback<T>(url: string, cacheKey: string): Promise<T | 
         throw new Error(data.error);
       }
       
-      // Save successful fetch to local cache
-      if (typeof window !== "undefined") {
-        localStorage.setItem(cacheKey, JSON.stringify(data));
-      }
-      return data;
+      // Save successful fetch to local cache (sessionStorage for TTL behavior)
+      const slimmed = slimData(cacheKey, data);
+      safeSetItem(cacheKey, JSON.stringify(slimmed));
+      
+      return slimmed;
     }
   } catch (error) {
     console.warn("Fetch failed, using fallback:", error instanceof Error ? error.message : error);
@@ -31,7 +78,7 @@ async function fetchWithFallback<T>(url: string, cacheKey: string): Promise<T | 
 
   // Fallback
   if (typeof window !== "undefined") {
-    const cached = localStorage.getItem(cacheKey);
+    const cached = sessionStorage.getItem(cacheKey);
     if (cached) {
       try {
          return JSON.parse(cached);
