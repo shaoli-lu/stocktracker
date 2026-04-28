@@ -1,6 +1,6 @@
 "use client";
 
-import { X, Info, Zap, BarChart3, Globe, Calendar, Layout } from "lucide-react";
+import { X, Info, Zap, BarChart3, Globe, Calendar, Layout, Newspaper } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -80,7 +80,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                   Welcome
                 </motion.h3>
                 <p className="text-gray-300 leading-relaxed text-sm">
-                  MarketHeat aggregates real-time data for informational and casual exploration of market pulse.
+                  MarketHeat aggregates real-time data for casual exploration of market pulse.
                 </p>
               </section>
 
@@ -88,6 +88,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                 {[
                   { icon: Zap, title: "Market Insights", desc: "View real-time mover updates and volatility alerts.", color: "text-indigo-400" },
                   { icon: BarChart3, title: "Interactive Charts", desc: "Click any asset to explore deep technicals with interactive candlestick charting.", color: "text-fuchsia-400" },
+                  { icon: Newspaper, title: "News Intelligence", desc: "Real-time financial news coverage with symbol-specific filtering and source analysis.", color: "text-blue-400" },
                   { icon: Calendar, title: "Earnings Intel", desc: "Browse daily reports with smart sorting by Revenue, EPS, Time, and Symbol.", color: "text-emerald-400" },
                   { icon: Layout, title: "Heatmap View", desc: "See the market at a glance with sector-specific, color-coded maps.", color: "text-amber-400" },
                 ].map((item, idx) => (
