@@ -365,9 +365,16 @@ export default function EarningsTab() {
                           </div>
 
                           {profile.weburl && (
-                            <a href={profile.weburl} target="_blank" rel="noreferrer" className="mt-4 flex items-center gap-1.5 hover:text-indigo-400 transition-colors text-[10px] text-gray-500 z-10" onClick={ev => ev.stopPropagation()}>
-                              <Globe className="w-3.5 h-3.5" />
-                              Webcast / IR Site
+                            <a 
+                              href={profile.weburl} 
+                              target="_blank" 
+                              rel="noreferrer" 
+                              className="mt-4 flex items-center gap-2.5 p-3 bg-white/5 hover:bg-indigo-500/10 hover:text-indigo-400 border border-white/5 hover:border-indigo-500/20 rounded-xl transition-all text-[10px] font-bold text-gray-400 z-10 group/link" 
+                              onClick={ev => ev.stopPropagation()}
+                            >
+                              <Globe className="w-4 h-4 text-gray-500 group-hover/link:text-indigo-400 transition-colors" />
+                              <span className="flex-grow uppercase tracking-wider">Webcast / IR Site</span>
+                              <ExternalLink className="w-3.5 h-3.5 opacity-0 group-hover/link:opacity-100 transition-all transform -translate-x-1 group-hover/link:translate-x-0" />
                             </a>
                           )}
                         </div>
