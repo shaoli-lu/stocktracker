@@ -216,7 +216,7 @@ export default function EarningsTab() {
           <p className="text-indigo-400 font-bold animate-pulse">Scanning Global Market Calendars...</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 h-full">
+        <div className="grid grid-cols-1 xl:grid-cols-5 gap-4 h-full">
           {[1, 2, 3, 4, 5].map(day => {
             const dateForDay = new Date(currentWeekStart);
             dateForDay.setDate(dateForDay.getDate() + (day - 1));
@@ -224,7 +224,7 @@ export default function EarningsTab() {
             const formattedDate = dateForDay.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 
             return (
-              <div key={day} className={`flex flex-col gap-4 min-h-[400px] transition-all duration-500 ${isToday ? 'z-20' : 'z-10'}`}>
+              <div key={day} className={`flex flex-col gap-4 min-h-[200px] xl:min-h-[400px] transition-all duration-500 ${isToday ? 'z-20' : 'z-10'}`}>
                 <div className={`glass-panel p-4 rounded-2xl border text-center shadow-lg flex flex-col items-center justify-center transition-all relative ${isToday ? 'border-indigo-400 bg-indigo-500/30 ring-2 ring-indigo-500/20 shadow-[0_0_30px_rgba(99,102,241,0.4)] scale-[1.02]' : 'border-white/5 bg-black/20'}`}>
                   {isToday && (
                     <div className="absolute inset-0 bg-indigo-500/20 blur-3xl -z-10 rounded-full animate-pulse"></div>
