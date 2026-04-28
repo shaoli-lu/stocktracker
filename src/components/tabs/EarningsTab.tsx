@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { getEarnings, getProfile, getQuote } from "@/lib/api";
-import { ChevronRight, DollarSign, Building, Globe, ChevronLeft, ChevronRight as IconRight, Calendar as CalendarIcon, Phone, ExternalLink, Star, TrendingUp, TrendingDown, Target, Activity } from "lucide-react";
+import { ChevronRight, DollarSign, Building, Globe, ChevronLeft, ChevronRight as IconRight, Calendar as CalendarIcon, Phone, ExternalLink, Star, TrendingUp, TrendingDown, Target, Activity, ListFilter } from "lucide-react";
 import { useStock } from "@/lib/StockContext";
 import { SYMBOLS } from "@/lib/data";
 
@@ -18,6 +18,7 @@ export default function EarningsTab() {
   const [profiles, setProfiles] = useState<Record<string, any>>({});
   const [quotes, setQuotes] = useState<Record<string, any>>({});
   const [isLoading, setIsLoading] = useState(true);
+  const [sortBy, setSortBy] = useState<'revenue' | 'symbol' | 'time' | 'eps'>('revenue');
   const { setSelectedSymbol, setActiveTab } = useStock();
 
   const handlePrevWeek = () => {
@@ -60,8 +61,19 @@ export default function EarningsTab() {
 
       const items = allEarningsResponses
         .flatMap(res => res?.earningsCalendar || [])
-        .filter((e: any) => e.revenueEstimate)
-        .sort((a: any, b: any) => Number(b.revenueEstimate) - Number(a.revenueEstimate));
+        .filter((e: any) => e.revenueEstimate || sortBy === 'symbol')
+        .sort((a: any, b: any) => {
+          if (sortBy === 'revenue') return Number(b.revenueEstimate || 0) - Number(a.revenueEstimate || 0);
+          if (sortBy === 'symbol') return a.symbol.localeCompare(b.symbol);
+          if (sortBy === 'eps') return Number(b.epsEstimate || 0) - Number(a.epsEstimate || 0);
+          if (sortBy === 'time') {
+            const timeMap: Record<string, number> = { 'bmo': 1, 'amc': 2, '': 3 };
+            const aTime = timeMap[a.hour?.toLowerCase()] || 4;
+            const bTime = timeMap[b.hour?.toLowerCase()] || 4;
+            return aTime - bTime;
+          }
+          return 0;
+        });
 
       const grouped: Record<number, any[]> = { 1: [], 2: [], 3: [], 4: [], 5: [] };
       const symbolsToFetch = new Set<string>();
@@ -113,7 +125,7 @@ export default function EarningsTab() {
     fetchWeekData();
 
     return () => { mounted = false; };
-  }, [currentWeekStart]); // Only fetch when week changes
+  }, [currentWeekStart, sortBy]); // Re-sort when week or sort method changes
 
   const handleLoadMore = async (day: number) => {
     setLoadingMoreDay(day);
@@ -168,17 +180,33 @@ export default function EarningsTab() {
           <CalendarIcon className="w-6 h-6 text-indigo-400" />
           Market Earnings
         </h2>
-
-        <div className="flex items-center gap-4 bg-black/40 rounded-xl p-1.5 border border-white/5">
-          <button onClick={handlePrevWeek} className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white">
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <div className="text-sm font-bold text-gray-300 w-44 text-center">
-            {currentWeekStart.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} — {currentFriday.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+        
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-3 bg-black/40 rounded-xl p-1.5 border border-white/5">
+            <ListFilter className="w-4 h-4 text-indigo-400 ml-1" />
+            <select 
+              value={sortBy} 
+              onChange={(e) => setSortBy(e.target.value as any)}
+              className="bg-transparent text-xs font-bold text-gray-300 outline-none cursor-pointer hover:text-white transition-colors py-1 pr-2"
+            >
+              <option value="revenue" className="bg-gray-900">Revenue Est.</option>
+              <option value="eps" className="bg-gray-900">EPS Estimate</option>
+              <option value="symbol" className="bg-gray-900">Symbol (A-Z)</option>
+              <option value="time" className="bg-gray-900">Report Time</option>
+            </select>
           </div>
-          <button onClick={handleNextWeek} className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white">
-            <IconRight className="w-5 h-5" />
-          </button>
+
+          <div className="flex items-center gap-4 bg-black/40 rounded-xl p-1.5 border border-white/5">
+            <button onClick={handlePrevWeek} className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white">
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <div className="text-sm font-bold text-gray-300 w-44 text-center">
+              {currentWeekStart.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} — {currentFriday.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+            </div>
+            <button onClick={handleNextWeek} className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white">
+              <IconRight className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       </div>
 
