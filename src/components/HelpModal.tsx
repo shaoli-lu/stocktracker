@@ -86,10 +86,10 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
 
               <div className="grid grid-cols-1 gap-3">
                 {[
-                  { icon: Zap, title: "Market Insights", desc: "View real-time mover updates for casual monitoring.", color: "text-indigo-400" },
-                  { icon: BarChart3, title: "Visual Analytics", desc: "Explore candlestick charting and market depth.", color: "text-fuchsia-400" },
-                  { icon: Calendar, title: "Earnings View", desc: "Browse the weekly earnings calendar.", color: "text-emerald-400" },
-                  { icon: Layout, title: "Heatmap View", desc: "See the market at a glance with color-coded maps.", color: "text-amber-400" },
+                  { icon: Zap, title: "Market Insights", desc: "View real-time mover updates and volatility alerts.", color: "text-indigo-400" },
+                  { icon: BarChart3, title: "Interactive Charts", desc: "Click any asset to explore deep technicals with interactive candlestick charting.", color: "text-fuchsia-400" },
+                  { icon: Calendar, title: "Earnings Intel", desc: "Browse daily reports with smart sorting by Revenue, EPS, Time, and Symbol.", color: "text-emerald-400" },
+                  { icon: Layout, title: "Heatmap View", desc: "See the market at a glance with sector-specific, color-coded maps.", color: "text-amber-400" },
                 ].map((item, idx) => (
                   <motion.div
                     key={idx}
@@ -109,23 +109,43 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                 ))}
               </div>
 
-              <motion.section
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                className="p-4 rounded-xl bg-indigo-600/10 border border-indigo-500/20 border-dashed"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="mt-1 p-2 rounded-lg bg-indigo-500/20">
-                    <Globe className="w-5 h-5 text-indigo-400" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <motion.section
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  className="p-4 rounded-xl bg-indigo-600/10 border border-indigo-500/20 border-dashed"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5 p-1.5 rounded-lg bg-indigo-500/20">
+                      <Globe className="w-4 h-4 text-indigo-400" />
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="text-white font-bold text-[11px] uppercase tracking-wider">Webcast Access</h4>
+                      <p className="text-[10px] text-gray-400 leading-relaxed font-medium">
+                        Click IR links on earnings cards for live conference calls and investor decks.
+                      </p>
+                    </div>
                   </div>
-                  <div className="space-y-1">
-                    <h4 className="text-white font-bold text-sm">Quick Search</h4>
-                    <p className="text-xs text-gray-400 leading-relaxed font-medium">
-                      Use the search bar at the top to find any symbol. Press <kbd className="px-2 py-0.5 rounded bg-gray-800 text-gray-100 border border-gray-600 text-[10px] font-mono shadow-sm">Enter</kbd> or the <span className="text-indigo-400 font-bold">Go</span> button to refresh results.
-                    </p>
+                </motion.section>
+
+                <motion.section
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  className="p-4 rounded-xl bg-indigo-600/10 border border-indigo-500/20 border-dashed"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5 p-1.5 rounded-lg bg-indigo-500/20">
+                      <Zap className="w-4 h-4 text-indigo-400" />
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="text-white font-bold text-[11px] uppercase tracking-wider">Quick Search</h4>
+                      <p className="text-[10px] text-gray-400 leading-relaxed font-medium">
+                        Search any symbol at the top. Press <kbd className="px-1.5 py-0.5 rounded bg-gray-800 text-gray-100 border border-gray-600 text-[8px] font-mono shadow-sm">Enter</kbd> to refresh.
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </motion.section>
+                </motion.section>
+              </div>
 
               <motion.section
                 initial={{ opacity: 0 }}
@@ -134,10 +154,10 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
               >
                 <h4 className="text-red-400 text-[10px] font-black uppercase tracking-widest mb-1.5 flex items-center gap-2">
                   <span className="w-1 h-1 rounded-full bg-red-400" />
-                  Legal Disclaimer
+                  Market Disclosure
                 </h4>
                 <p className="text-[10px] text-gray-500 leading-relaxed italic">
-                  Information provided is for casual use and education only. No guarantee of accuracy. Past performance does not represent future results. Not intended for trading or financial advice.
+                  Information is for educational use. No guarantee of accuracy. Past performance does not represent future results. Not intended for trading or financial advice.
                 </p>
               </motion.section>
             </div>
