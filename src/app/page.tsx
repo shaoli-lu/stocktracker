@@ -17,13 +17,13 @@ import EarningsTab from "@/components/tabs/EarningsTab";
 import MostActivesTab from "@/components/tabs/MostActivesTab";
 
 const TABS = [
+  { id: "Earnings", icon: CalendarIcon },
+  { id: "News", icon: FileText },
+  { id: "Candlestick", icon: BarChart2 },
+  { id: "Heatmap", icon: Grid },
+  { id: "Slideshow", icon: MonitorPlay },
   { id: "Mag7+", icon: User },
   { id: "Most Actives", icon: Activity },
-  { id: "News", icon: FileText },
-  { id: "Earnings", icon: CalendarIcon },
-  { id: "Candle", icon: BarChart2 },
-  { id: "Slideshow", icon: MonitorPlay },
-  { id: "Heatmap", icon: Grid },
 ];
 
 export default function Home() {
@@ -76,8 +76,8 @@ export default function Home() {
     setSelectedSymbol(sym);
     setSearchQuery("");
     setIsSearchOpen(false);
-    if (activeTab !== "Candle" && activeTab !== "Profile" && activeTab !== "News") {
-      setActiveTab("Candle");
+    if (activeTab !== "Candlestick" && activeTab !== "Profile" && activeTab !== "News") {
+      setActiveTab("Candlestick");
     }
   };
 
@@ -224,7 +224,7 @@ export default function Home() {
           {activeTab === "Most Actives" && <MostActivesTab />}
           {activeTab === "News" && <NewsTab />}
           {activeTab === "Earnings" && <EarningsTab />}
-          {activeTab === "Candle" && <CandleTab />}
+          {activeTab === "Candlestick" && <CandleTab />}
           {activeTab === "Slideshow" && <SlideshowTab />}
           {activeTab === "Heatmap" && <HeatmapTab />}
         </section>

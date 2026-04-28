@@ -262,7 +262,7 @@ export default function EarningsTab() {
                           onClick={(ev) => {
                             ev.stopPropagation();
                             setSelectedSymbol(e.symbol);
-                            setActiveTab("Candle");
+                            setActiveTab("Candlestick");
                           }}
                           className={`glass-panel p-5 rounded-2xl transition-all duration-300 hover:scale-[1.02] cursor-pointer flex flex-col relative overflow-hidden shrink-0 border ${isTracked ? 'border-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.15)] bg-amber-500/5' : 'border-white/5 hover:bg-white-[0.02] hover:shadow-[0_20px_40px_-15px_rgba(99,102,241,0.2)]'}`}
                         >

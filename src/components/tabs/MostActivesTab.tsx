@@ -164,7 +164,7 @@ export default function MostActivesTab() {
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedSymbol(sym);
-                    setActiveTab("Candle");
+                    setActiveTab("Candlestick");
                   }}
                   className="glass-panel p-6 rounded-[2rem] hover:bg-white-[0.02] hover:scale-[1.02] hover:shadow-[0_20px_40px_-15px_rgba(99,102,241,0.2)] transition-all duration-300 border border-white/5 cursor-pointer group flex flex-col relative overflow-hidden"
                 >

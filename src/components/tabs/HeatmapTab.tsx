@@ -100,7 +100,7 @@ export default function HeatmapTab() {
               onClick={(e) => {
                 e.stopPropagation();
                 setSelectedSymbol(sym);
-                setActiveTab("Candle");
+                setActiveTab("Candlestick");
               }}
               className={`${getHeatmapColor(dp)} ${getCellSize(dp)} rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:scale-105 border border-white/10 group overflow-hidden relative text-center`}
             >
