@@ -4,6 +4,13 @@ import { ChevronRight, DollarSign, Building, Globe, ChevronLeft, ChevronRight as
 import { useStock } from "@/lib/StockContext";
 import { SYMBOLS } from "@/lib/data";
 
+const RECONCILED_GAAP: Record<string, { eps?: number, revenue?: number, note?: string, quarter: number, year: number }> = {
+  'GOOGL': { revenue: 109.896e9, note: 'Consolidated Revenue', quarter: 1, year: 2026 },
+  'GOOG': { revenue: 109.896e9, note: 'Consolidated Revenue', quarter: 1, year: 2026 },
+  'AMZN': { eps: 2.78, note: 'Includes Anthropic gain', quarter: 1, year: 2026 },
+  'META': { eps: 10.44, note: 'Includes tax benefit', quarter: 1, year: 2026 }
+};
+
 export default function EarningsTab() {
   const [currentWeekStart, setCurrentWeekStart] = useState(() => {
     const d = new Date();
@@ -251,6 +258,7 @@ export default function EarningsTab() {
                     <>
                     {fullEarningsByDay[day].slice(0, visibleCounts[day] || 4).map(e => {
                       const profile = profiles[e.symbol] || {};
+                      const gaap = RECONCILED_GAAP[e.symbol];
 
 
                       const isTracked = SYMBOLS.includes(e.symbol);
@@ -317,7 +325,7 @@ export default function EarningsTab() {
                               {/* EPS Section */}
                               <div className="flex flex-col gap-1">
                                 <div className="flex justify-between items-center text-[10px]">
-                                  <span className="text-gray-400 flex items-center gap-1.5"><Target className="w-3.5 h-3.5 text-indigo-400" /> EPS</span>
+                                  <span className="text-gray-400 flex items-center gap-1.5"><Target className="w-3.5 h-3.5 text-indigo-400" /> EPS {['AMZN', 'META'].includes(e.symbol) ? '(Adj)' : ''}</span>
                                   <span className="text-gray-400">
                                     Est {e.epsEstimate !== null && e.epsEstimate !== undefined ? e.epsEstimate.toFixed(2) : "N/A"}
                                   </span>
@@ -338,7 +346,10 @@ export default function EarningsTab() {
                               {/* Revenue Section */}
                               <div className="flex flex-col gap-1 mt-1 border-t border-white/5 pt-2">
                                 <div className="flex justify-between items-center text-[10px]">
-                                  <span className="text-gray-400 flex items-center gap-1.5"><Activity className="w-3.5 h-3.5 text-indigo-400" /> Revenue</span>
+                                  <span className="text-gray-400 flex items-center gap-1.5">
+                                    <Activity className="w-3.5 h-3.5 text-indigo-400" /> 
+                                    Revenue {e.symbol.startsWith('GOOG') ? '(ex-TAC)' : ''}
+                                  </span>
                                   <span className="text-gray-400">
                                     Est {e.revenueEstimate !== null && e.revenueEstimate !== undefined ? (e.revenueEstimate >= 1e9 ? `$${(e.revenueEstimate / 1e9).toFixed(2)}B` : e.revenueEstimate >= 1e6 ? `$${(e.revenueEstimate / 1e6).toFixed(2)}M` : `$${e.revenueEstimate.toLocaleString()}`) : "N/A"}
                                   </span>
@@ -353,30 +364,54 @@ export default function EarningsTab() {
                                       </span>
                                     )}
                                   </div>
-                                )}
-                              </div>
+                                 )}
+                               </div>
 
-                              {e.epsActual !== null && e.epsActual !== undefined && e.epsEstimate !== null && e.epsEstimate !== undefined && (
-                                <div className={`text-[9px] py-1 px-2 rounded-md font-bold mt-1.5 text-center flex items-center justify-center gap-1.5 ${e.epsActual >= e.epsEstimate ? "bg-green-500/10 text-green-400 border border-green-500/20" : "bg-red-500/10 text-red-400 border border-red-500/20"}`}>
-                                  {e.epsActual >= e.epsEstimate ? "POSITIVE MARKET REACTION" : "NEGATIVE MARKET REACTION"}
-                                </div>
-                              )}
-                            </div>
-                          </div>
+                               {/* GAAP Section (Only for reconciled symbols and correct period) */}
+                               {gaap && gaap.quarter === e.quarter && gaap.year === e.year && (
+                                 <div className="flex flex-col gap-1 mt-1 border-t border-white/10 pt-2 animate-in fade-in slide-in-from-top-1 duration-500">
+                                   <div className="flex justify-between items-center text-[10px]">
+                                      <span className="text-amber-400 font-bold flex items-center gap-1.5"><Building className="w-3.5 h-3.5" /> GAAP Reporting</span>
+                                      <span className="text-[8px] text-gray-500 italic font-medium">{gaap.note}</span>
+                                   </div>
+                                   <div className="flex flex-col gap-1 pl-5">
+                                     {gaap.eps && (
+                                        <div className="flex justify-between items-center text-[10px]">
+                                          <span className="text-gray-400">GAAP EPS:</span>
+                                          <span className="font-bold text-white">${gaap.eps.toFixed(2)}</span>
+                                        </div>
+                                     )}
+                                     {gaap.revenue && (
+                                        <div className="flex justify-between items-center text-[10px]">
+                                          <span className="text-gray-400">GAAP Revenue:</span>
+                                          <span className="font-bold text-white">${(gaap.revenue / 1e9).toFixed(2)}B</span>
+                                        </div>
+                                     )}
+                                   </div>
+                                 </div>
+                               )}
 
-                          {profile.weburl && (
-                            <a 
-                              href={profile.weburl} 
-                              target="_blank" 
-                              rel="noreferrer" 
-                              className="mt-4 flex items-center gap-2.5 p-3 bg-white/5 hover:bg-indigo-500/10 hover:text-indigo-400 border border-white/5 hover:border-indigo-500/20 rounded-xl transition-all text-[10px] font-bold text-gray-400 z-10 group/link" 
-                              onClick={ev => ev.stopPropagation()}
-                            >
-                              <Globe className="w-4 h-4 text-gray-500 group-hover/link:text-indigo-400 transition-colors" />
-                              <span className="flex-grow uppercase tracking-wider">Webcast / IR Site</span>
-                              <ExternalLink className="w-3.5 h-3.5 opacity-0 group-hover/link:opacity-100 transition-all transform -translate-x-1 group-hover/link:translate-x-0" />
-                            </a>
-                          )}
+                               {e.epsActual !== null && e.epsActual !== undefined && e.epsEstimate !== null && e.epsEstimate !== undefined && (
+                                 <div className={`text-[9px] py-1 px-2 rounded-md font-bold mt-1.5 text-center flex items-center justify-center gap-1.5 ${e.epsActual >= e.epsEstimate ? "bg-green-500/10 text-green-400 border border-green-500/20" : "bg-red-500/10 text-red-400 border border-red-500/20"}`}>
+                                   {e.epsActual >= e.epsEstimate ? "POSITIVE MARKET REACTION" : "NEGATIVE MARKET REACTION"}
+                                 </div>
+                               )}
+                             </div>
+                           </div>
+
+                           {profile.weburl && (
+                             <a 
+                               href={profile.weburl} 
+                               target="_blank" 
+                               rel="noreferrer" 
+                               className="mt-4 flex items-center gap-2.5 p-3 bg-white/5 hover:bg-indigo-500/10 hover:text-indigo-400 border border-white/5 hover:border-indigo-500/20 rounded-xl transition-all text-[10px] font-bold text-gray-400 z-10 group/link" 
+                               onClick={ev => ev.stopPropagation()}
+                             >
+                               <Globe className="w-4 h-4 text-gray-500 group-hover/link:text-indigo-400 transition-colors" />
+                               <span className="flex-grow uppercase tracking-wider">Webcast / IR Site</span>
+                               <ExternalLink className="w-3.5 h-3.5 opacity-0 group-hover/link:opacity-100 transition-all transform -translate-x-1 group-hover/link:translate-x-0" />
+                             </a>
+                           )}
                         </div>
                       );
                     })}
