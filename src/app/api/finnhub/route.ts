@@ -1,5 +1,6 @@
 import { type NextRequest } from "next/server";
 
+export const runtime = "nodejs";
 const API_BASE_URL = process.env.FINNHUB_API_BASE_URL ?? "https://finnhub.io/api/v1";
 
 /**
@@ -10,14 +11,13 @@ const API_BASE_URL = process.env.FINNHUB_API_BASE_URL ?? "https://finnhub.io/api
  * The `path` param is required; all other params are forwarded as-is.
  */
 export async function GET(request: NextRequest) {
-  // Read the key at request time so it picks up .env.local even after
-  // a hot-reload (module-level const can be cached before env is ready).
-  const apiKey = process.env.FINNHUB_API_KEY;
+  // Read the key at request time so it picks up env vars in production and dev.
+  const apiKey = process.env.FINNHUB_API_KEY ?? process.env.NEXT_PUBLIC_FINNHUB_API_KEY;
 
   if (!apiKey) {
     console.error(
-      "FINNHUB_API_KEY is not set. Ensure .env.local exists at the project root " +
-      "and the dev server was restarted after adding it."
+      "FINNHUB_API_KEY is not set. Set it in your environment variables " +
+      "and redeploy. In Vercel, configure FINNHUB_API_KEY under Project Settings > Environment Variables."
     );
     return Response.json(
       { error: "API key not configured. Check server logs." },
@@ -32,17 +32,17 @@ export async function GET(request: NextRequest) {
     return Response.json({ error: "Missing required `path` query param" }, { status: 400 });
   }
 
-  // Forward all query params except `path`, then append the secret token
   const upstream = new URLSearchParams();
   for (const [key, value] of incoming.entries()) {
     if (key !== "path") upstream.set(key, value);
   }
   upstream.set("token", apiKey);
 
-  const url = `${API_BASE_URL}${path}?${upstream.toString()}`;
+  const url = new URL(path, API_BASE_URL);
+  url.search = upstream.toString();
 
   try {
-    const res = await fetch(url);
+    const res = await fetch(url.toString());
     const data = await res.json();
 
     if (!res.ok) {
