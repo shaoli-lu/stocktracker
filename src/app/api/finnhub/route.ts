@@ -38,21 +38,47 @@ export async function GET(request: NextRequest) {
   }
   upstream.set("token", apiKey);
 
-  const url = new URL(path, API_BASE_URL);
+  const normalizedBase = API_BASE_URL.endsWith("/") ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  const url = new URL(`${normalizedBase}${normalizedPath}`);
   url.search = upstream.toString();
 
   try {
-    const res = await fetch(url.toString());
-    const data = await res.json();
+    const res = await fetch(url.toString(), {
+      headers: { Accept: "application/json" },
+    });
+
+    const sanitizedUrl = url.toString().replace(/([?&])token=[^&]*/i, "$1token=REDACTED");
 
     if (!res.ok) {
-      console.error(`Finnhub upstream ${res.status} for ${path}:`, data);
+      let body: any;
+      const text = await res.text();
+      try {
+        body = JSON.parse(text);
+      } catch {
+        body = { message: text || res.statusText };
+      }
+      console.error(`Finnhub upstream ${res.status} for ${path}:`, body, sanitizedUrl);
+      return Response.json(
+        { error: "Upstream Finnhub request failed", status: res.status, details: body },
+        { status: res.status },
+      );
     }
 
-    return Response.json(data, { status: res.status });
+    try {
+      const data = await res.json();
+      return Response.json(data, { status: res.status });
+    } catch (jsonErr) {
+      const text = await res.text();
+      console.error("Finnhub proxy JSON parse failed for response:", text, sanitizedUrl, jsonErr);
+      return Response.json(
+        { error: "Finnhub returned non-JSON response", details: text },
+        { status: 502 },
+      );
+    }
   } catch (err) {
     console.error("Finnhub proxy error:", err);
-    return Response.json({ error: "Upstream fetch failed" }, { status: 502 });
+    return Response.json({ error: "Upstream fetch failed", details: err instanceof Error ? err.message : String(err) }, { status: 502 });
   }
 }
 
