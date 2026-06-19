@@ -1,4 +1,14 @@
-import { SYMBOLS, API_KEY, API_BASE_URL } from "./data";
+import { SYMBOLS } from "./data";
+
+/**
+ * Builds a URL to our server-side Finnhub proxy.
+ * The proxy injects the secret API key — it never reaches the browser.
+ */
+function finnhub(path: string, params: Record<string, string | number> = {}): string {
+  const qs = new URLSearchParams({ path });
+  for (const [k, v] of Object.entries(params)) qs.set(k, String(v));
+  return `/api/finnhub?${qs.toString()}`;
+}
 
 /**
  * Slims down the data object to save storage space.
@@ -92,19 +102,19 @@ async function fetchWithFallback<T>(url: string, cacheKey: string): Promise<T | 
 }
 
 export async function getQuote(symbol: string) {
-  const url = `${API_BASE_URL}/quote?symbol=${symbol}&token=${API_KEY}`;
+  const url = finnhub("/quote", { symbol });
   const key = `quote_${symbol}`;
   return fetchWithFallback<any>(url, key);
 }
 
 export async function getProfile(symbol: string) {
-  const url = `${API_BASE_URL}/stock/profile2?symbol=${symbol}&token=${API_KEY}`;
+  const url = finnhub("/stock/profile2", { symbol });
   const key = `profile_${symbol}`;
   return fetchWithFallback<any>(url, key);
 }
 
 export async function getCandles(symbol: string, resolution: string, from: number, to: number) {
-  const url = `${API_BASE_URL}/stock/candle?symbol=${symbol}&resolution=${resolution}&from=${from}&to=${to}&token=${API_KEY}`;
+  const url = finnhub("/stock/candle", { symbol, resolution, from, to });
   const key = `candles_${symbol}_${resolution}`;
   const data = await fetchWithFallback<any>(url, key);
   
@@ -159,34 +169,35 @@ export async function getCandles(symbol: string, resolution: string, from: numbe
 }
 
 export async function getMarketNews() {
-  const url = `${API_BASE_URL}/news?category=general&token=${API_KEY}`;
+  const url = finnhub("/news", { category: "general" });
   const key = `news_market_general`;
   return fetchWithFallback<any[]>(url, key);
 }
 
 export async function getCompanyNews(symbol: string, from: string, to: string) {
-  const url = `${API_BASE_URL}/company-news?symbol=${symbol}&from=${from}&to=${to}&token=${API_KEY}`;
+  const url = finnhub("/company-news", { symbol, from, to });
   const key = `news_${symbol}`;
   return fetchWithFallback<any[]>(url, key);
 }
 
 export async function searchStocks(query: string) {
   if (!query) return [];
-  const url = `${API_BASE_URL}/search?q=${query}&token=${API_KEY}`;
+  const url = finnhub("/search", { q: query });
   const key = `search_${query}`;
   const data = await fetchWithFallback<any>(url, key);
   return data?.result || [];
 }
 
 export async function getEarnings(from: string, to: string, symbol?: string) {
-  let url = `${API_BASE_URL}/calendar/earnings?from=${from}&to=${to}&token=${API_KEY}`;
-  if (symbol) url += `&symbol=${symbol}`;
+  const params: Record<string, string> = { from, to };
+  if (symbol) params.symbol = symbol;
+  const url = finnhub("/calendar/earnings", params);
   const key = `earnings_${symbol || "all"}_${from}_${to}`;
   return fetchWithFallback<any>(url, key);
 }
 
 export async function getMetric(symbol: string) {
-  const url = `${API_BASE_URL}/stock/metric?symbol=${symbol}&metric=all&token=${API_KEY}`;
+  const url = finnhub("/stock/metric", { symbol, metric: "all" });
   const key = `metric_${symbol}`;
   return fetchWithFallback<any>(url, key);
 }
