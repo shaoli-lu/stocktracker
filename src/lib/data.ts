@@ -6,5 +6,5 @@ export const SYMBOLS = [
 
 ];
 
-export const API_KEY = "cmqrf4pr01ql2lmsuaagcmqrf4pr01ql2lmsuab0";
-export const API_BASE_URL = "https://finnhub.io/api/v1";
+export const API_KEY = process.env.NEXT_PUBLIC_FINNHUB_API_KEY!;
+export const API_BASE_URL = process.env.NEXT_PUBLIC_FINNHUB_API_BASE_URL!;
