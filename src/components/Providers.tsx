@@ -2,15 +2,23 @@
 
 import { useEffect } from "react";
 import confetti from "canvas-confetti";
+import { AuthProvider } from "@/lib/AuthContext";
+import PasswordGate from "@/components/PasswordGate";
 import { StockProvider } from "@/lib/StockContext";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const handleGlobalClick = (e: MouseEvent) => {
+      // Avoid firing global confetti if clicking inputs or buttons inside forms
+      const target = e.target as HTMLElement;
+      if (target.closest("input, button, [role='button'], select, textarea")) {
+        return;
+      }
+
       // Small explosion effect at the cursor position
       confetti({
-        particleCount: 50,
-        spread: 60,
+        particleCount: 35,
+        spread: 50,
         origin: {
           x: e.clientX / window.innerWidth,
           y: e.clientY / window.innerHeight,
@@ -27,5 +35,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  return <StockProvider>{children}</StockProvider>;
+  return (
+    <AuthProvider>
+      <PasswordGate>
+        <StockProvider>{children}</StockProvider>
+      </PasswordGate>
+    </AuthProvider>
+  );
 }

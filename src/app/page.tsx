@@ -1,7 +1,8 @@
 "use client";
 
 import { useStock } from "@/lib/StockContext";
-import { Search, Activity, MonitorPlay, User, BarChart2, Grid, FileText, Loader2, Calendar as CalendarIcon, HelpCircle } from "lucide-react";
+import { useAuth } from "@/lib/AuthContext";
+import { Search, Activity, MonitorPlay, User, BarChart2, Grid, FileText, Loader2, Calendar as CalendarIcon, HelpCircle, Lock } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { SYMBOLS } from "@/lib/data";
 import { searchStocks } from "@/lib/api";
@@ -28,6 +29,7 @@ const TABS = [
 
 export default function Home() {
   const { setSelectedSymbol, activeTab, setActiveTab } = useStock();
+  const { logout } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<{ symbol: string; description: string }[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -110,8 +112,17 @@ export default function Home() {
                   onClick={() => setIsHelpOpen(true)}
                   className="p-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-indigo-500/50 text-indigo-400 transition-all active:scale-90"
                   aria-label="Help Guide"
+                  title="Help Guide"
                 >
                   <HelpCircle className="w-5 h-5" />
+                </button>
+                <button 
+                  onClick={() => logout()}
+                  className="p-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-rose-500/20 hover:border-rose-500/40 text-gray-400 hover:text-rose-300 transition-all active:scale-90"
+                  aria-label="Lock Application"
+                  title="Lock Application"
+                >
+                  <Lock className="w-4 h-4" />
                 </button>
               </div>
               <p className="text-sm text-indigo-400 font-bold tracking-widest uppercase">
