@@ -73,7 +73,7 @@ export default function PasswordGate({ children }: { children: React.ReactNode }
                 MarketHeat
               </h1>
               <p className="text-xs text-indigo-400 font-bold tracking-widest uppercase mt-1">
-                Wealth Engine
+                Market Pulse
               </p>
             </div>
 

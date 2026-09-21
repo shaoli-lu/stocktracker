@@ -126,7 +126,7 @@ export default function Home() {
                 </button>
               </div>
               <p className="text-sm text-indigo-400 font-bold tracking-widest uppercase">
-                Wealth Engine
+                Market Pulse
               </p>
             </div>
           </div>
